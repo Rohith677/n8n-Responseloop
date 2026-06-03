@@ -1,0 +1,1423 @@
+{
+  "name": "WF2 — Business Logic Router (v11)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "b29559b4-63e9-42af-970f-8d136219a201",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -4192,
+        3248
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "users",
+        "options": {},
+        "query": "={{ JSON.stringify({ phoneNumber: $json.phoneNumber }) }}"
+      },
+      "id": "584d1186-84ca-404a-a363-661eb84abc79",
+      "name": "Search User",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -3968,
+        3248
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dd037f2c-3078-48ea-8f4a-abd178cdbfb3",
+              "leftValue": "={{ $json.userId }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7240c3ee-6202-4de6-bc69-ca8a7fd55558",
+      "name": "Is Registered?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3744,
+        3248
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "1A5eRkRPjqHuFrIs",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}",
+            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}"
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "display_phone_number",
+              "displayName": "display_phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "331c6953-ed67-4db8-a844-177ba0745541",
+      "name": "Call User Creation",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -3520,
+        3344
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bb96c967-d2f1-420c-bc3a-171c0c22c222",
+              "leftValue": "={{ $json.registrationComplete }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6f15c00c-d5b2-43b4-a53c-c37ed2214c16",
+      "name": "Is Registration Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -3296,
+        3344
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1b90a99b-2390-4267-893a-14967a2cc7cb",
+              "name": "responseType",
+              "value": "={{ $json.responseType }}",
+              "type": "string"
+            },
+            {
+              "id": "272edb8e-784b-4d2c-a10d-a586c94541e9",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a2490870-4997-4296-ae24-f55a9ba6b700",
+      "name": "Return Registration Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -3072,
+        3440
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "users",
+        "options": {},
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "bb74230f-8e75-42a8-9a2a-0de1045ce239",
+      "name": "Search User Again",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -3072,
+        3248
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KBu1JIQqcuaAeygA",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $('Call User Creation').first().json.firstMessage || $('Execute Workflow Trigger').first().json.userInput }}",
+            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
+            "userId": "={{ $('Search User Again').first().json.userId }}",
+            "organizationId": "={{ $('Search User Again').first().json.organizationId }}",
+            "parentOrganizationId": "={{ $('Search User Again').first().json.parentOrganizationId }}",
+            "userName": "={{ $('Search User Again').first().json.name }}",
+            "userMongoId": "={{ $('Search User Again').first().json._id }}",
+            "sessionId": ""
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organizationId",
+              "displayName": "organizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parentOrganizationId",
+              "displayName": "parentOrganizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userName",
+              "displayName": "userName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userMongoId",
+              "displayName": "userMongoId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "47f16eed-27cd-4f78-a9c8-41b2a4679d83",
+      "name": "Call Intent After Reg",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -2848,
+        3248
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const userMessage = $('Execute Workflow Trigger').first().json.userInput || \"\";\nconst prompt = 'Is this message a GREETING (hi, hello, hey, start, menu, restart, etc)?\\nMessage: \"' + userMessage + '\"\\nRespond JSON only: {\"isGreeting\": true_or_false}';\nreturn [{ json: { prompt } }];"
+      },
+      "id": "c8e4bcfb-7507-4f92-8714-afb4b760cea2",
+      "name": "Build Greeting Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3520,
+        3056
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "model": "gpt-4o-mini",
+        "prompt": {
+          "messages": [
+            {
+              "role": "system",
+              "content": "Respond with valid JSON only. No markdown. No explanation."
+            },
+            {
+              "content": "={{ $json.prompt }}"
+            }
+          ]
+        },
+        "simplifyOutput": false,
+        "options": {
+          "temperature": 0
+        },
+        "requestOptions": {}
+      },
+      "id": "6f47de8f-fe62-4df3-b4ee-a1fa6e5934b2",
+      "name": "Greeting Check LLM",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [
+        -3296,
+        3056
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "uXr0nmkLxemPDRRi",
+          "name": "aami-dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json?.choices?.[0]?.message?.content || '{}';\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\ntry { return [{ json: JSON.parse(cleaned) }]; } catch(e) { return [{ json: { isGreeting: false } }]; }"
+      },
+      "id": "91c5586a-b679-4fe3-b6ab-a2bf8c59f99d",
+      "name": "Parse Greeting Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3072,
+        3056
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e2367a71-916f-46a5-a51a-0ab7f7c4ede1",
+              "leftValue": "={{ $json.isGreeting }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bc80dd74-da42-4ceb-bd96-6a2f5fba4f9c",
+      "name": "Is Greeting?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2848,
+        3056
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "collection": "intent_sessions",
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "3736b873-ef9f-4c6a-8bd8-ba0983613069",
+      "name": "Delete Sessions on Greeting",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -2624,
+        2848
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "collection": "options_cache",
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "aa429493-69c7-48b4-89fb-39c914f6f889",
+      "name": "Delete Cache on Greeting",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -2400,
+        2848
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KBu1JIQqcuaAeygA",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
+            "userId": "={{ $('Search User').first().json.userId }}",
+            "organizationId": "={{ $('Search User').first().json.organizationId }}",
+            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
+            "userName": "={{ $('Search User').first().json.name }}",
+            "userMongoId": "={{ $('Search User').first().json._id }}",
+            "sessionId": ""
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organizationId",
+              "displayName": "organizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parentOrganizationId",
+              "displayName": "parentOrganizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userName",
+              "displayName": "userName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userMongoId",
+              "displayName": "userMongoId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "38331067-9937-4128-9556-88dbd913f426",
+      "name": "Call Intent Fresh",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -2176,
+        2848
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "intent_sessions",
+        "options": {},
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "04ddda5f-9a1c-4d1f-8060-a5d19d989c21",
+      "name": "Fetch Intent Session",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -2624,
+        3168
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5e0074f4-f1c2-4ac8-887f-e8c02c2053ba",
+              "leftValue": "={{ $json.phase }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "828a3642-7003-44d4-a2b0-57dc2612e9d1",
+      "name": "Has Active Session?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2400,
+        3168
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a423b2de-c931-4328-88bd-164efd64a41a",
+                    "leftValue": "={{ $('Fetch Intent Session').first().json.phase }}",
+                    "rightValue": "repeat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "repeat"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "c56f5741-f54b-43c0-b3c9-d707761cd222",
+                    "leftValue": "={{ $('Fetch Intent Session').first().json.phase }}",
+                    "rightValue": "collecting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "collecting"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "bb41e8b8-03f3-4941-9bb4-3bee4eaf7143",
+      "name": "Check Phase",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -2176,
+        3040
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "mf4ViLy2gS39jAde",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
+            "userId": "={{ $('Search User').first().json.userId }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}"
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cb367446-72fe-4359-9104-f4e4bfd2a185",
+      "name": "Call Repeat Engine",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1952,
+        2960
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KBu1JIQqcuaAeygA",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
+            "userId": "={{ $('Search User').first().json.userId }}",
+            "organizationId": "={{ $('Search User').first().json.organizationId }}",
+            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
+            "userName": "={{ $('Search User').first().json.name }}",
+            "userMongoId": "={{ $('Search User').first().json._id }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}"
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organizationId",
+              "displayName": "organizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parentOrganizationId",
+              "displayName": "parentOrganizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userName",
+              "displayName": "userName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userMongoId",
+              "displayName": "userMongoId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "362b461a-528c-4f83-8f08-e70274991134",
+      "name": "Call Intent With Session",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1952,
+        3152
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KBu1JIQqcuaAeygA",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
+            "userId": "={{ $('Search User').first().json.userId }}",
+            "organizationId": "={{ $('Search User').first().json.organizationId }}",
+            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
+            "userName": "={{ $('Search User').first().json.name }}",
+            "userMongoId": "={{ $('Search User').first().json._id }}",
+            "sessionId": ""
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organizationId",
+              "displayName": "organizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parentOrganizationId",
+              "displayName": "parentOrganizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userName",
+              "displayName": "userName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userMongoId",
+              "displayName": "userMongoId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "131a633e-d231-4bde-9f51-3b8e36dce982",
+      "name": "Call Intent Normal",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -2176,
+        3264
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d816462d-e8f2-4e09-9596-9a103d3376b3",
+              "leftValue": "={{ $json.responseType }}",
+              "rightValue": "__repeat_done__",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1728,
+        2960
+      ],
+      "id": "3a9b1fde-1278-4e95-bb80-8ce82d04c147",
+      "name": "Is Repeat Done?"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "KBu1JIQqcuaAeygA",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
+            "userId": "={{ $('Search User').first().json.userId }}",
+            "organizationId": "={{ $('Search User').first().json.organizationId }}",
+            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
+            "userName": "={{ $('Search User').first().json.name }}",
+            "userMongoId": "={{ $('Search User').first().json._id }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}"
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organizationId",
+              "displayName": "organizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parentOrganizationId",
+              "displayName": "parentOrganizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userName",
+              "displayName": "userName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userMongoId",
+              "displayName": "userMongoId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sessionId",
+              "displayName": "sessionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7ad98aa2-84c8-4d17-a673-bb0f062a8cef",
+      "name": "Call Intent Post Repeat",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -1504,
+        2864
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: $('Call Repeat Engine').first().json }]"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1504,
+        3056
+      ],
+      "id": "aac752ea-d7d5-4c0f-ab41-7af41ee572a9",
+      "name": "Return Repeat Response"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search User": {
+      "main": [
+        [
+          {
+            "node": "Is Registered?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Registered?": {
+      "main": [
+        [
+          {
+            "node": "Build Greeting Check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call User Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call User Creation": {
+      "main": [
+        [
+          {
+            "node": "Is Registration Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Registration Complete?": {
+      "main": [
+        [
+          {
+            "node": "Search User Again",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Registration Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search User Again": {
+      "main": [
+        [
+          {
+            "node": "Call Intent After Reg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Greeting Check": {
+      "main": [
+        [
+          {
+            "node": "Greeting Check LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Greeting Check LLM": {
+      "main": [
+        [
+          {
+            "node": "Parse Greeting Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Greeting Check": {
+      "main": [
+        [
+          {
+            "node": "Is Greeting?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Greeting?": {
+      "main": [
+        [
+          {
+            "node": "Delete Sessions on Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Intent Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Sessions on Greeting": {
+      "main": [
+        [
+          {
+            "node": "Delete Cache on Greeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Cache on Greeting": {
+      "main": [
+        [
+          {
+            "node": "Call Intent Fresh",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Intent Session": {
+      "main": [
+        [
+          {
+            "node": "Has Active Session?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Active Session?": {
+      "main": [
+        [
+          {
+            "node": "Check Phase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Intent Normal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Phase": {
+      "main": [
+        [
+          {
+            "node": "Call Repeat Engine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Intent With Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Repeat Engine": {
+      "main": [
+        [
+          {
+            "node": "Is Repeat Done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Repeat Done?": {
+      "main": [
+        [
+          {
+            "node": "Call Intent Post Repeat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Repeat Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ba45e4e5-1d95-485d-b98a-2f7aabe74819",
+  "meta": {
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
+  },
+  "id": "UVbAtI637oyEECs1",
+  "tags": []
+}

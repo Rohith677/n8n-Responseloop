@@ -1,0 +1,1104 @@
+{
+  "name": "WF3 (User Creation)",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "211b62e1-ce3d-4c8c-8755-15a96795c540",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -2224,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "organizations",
+        "options": {},
+        "query": "={{ JSON.stringify({ businessPhoneNumber: $json.display_phone_number }) }}"
+      },
+      "id": "08011f5b-2ffc-4485-a5fd-9c45baf9005b",
+      "name": "Find Org by Phone",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -2000,
+        448
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "59cc77ce-6254-4a22-8a5a-d756a162490d",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6053ffc6-c481-4bb3-9494-f6d137728c13",
+      "name": "Org Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1776,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "52f692f4-0541-48c9-81a2-cecd8ab2b89f",
+              "name": "responseType",
+              "value": "text",
+              "type": "string"
+            },
+            {
+              "id": "40d2ed02-8b44-485e-bc3b-77bfd96b2506",
+              "name": "message",
+              "value": "Sorry, this number is not associated with any registered organisation. Please contact support.",
+              "type": "string"
+            },
+            {
+              "id": "0ea0d384-9fde-4913-a6c3-15d41a695615",
+              "name": "registrationComplete",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0d1a2db6-dac2-4ddc-b2fb-a1cc18a193ff",
+      "name": "Return No Org",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1552,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "9db51b33-66a1-4915-a0e5-1836f5969e72",
+              "leftValue": "={{ $json.allowExternalUser }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c08170b6-c0ed-4f74-b923-2d69eff2987b",
+      "name": "Allow External User?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1552,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4654023-a769-4aaf-8338-6b226a699d97",
+              "name": "responseType",
+              "value": "text",
+              "type": "string"
+            },
+            {
+              "id": "564e5b7e-bbe1-4b31-bcbd-45673325dd52",
+              "name": "message",
+              "value": "Sorry, this organisation does not support external user registration. Please contact your administrator.",
+              "type": "string"
+            },
+            {
+              "id": "6b95ff76-8090-4478-be7b-9897496d9c33",
+              "name": "registrationComplete",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2b9c8cb-77e1-4834-8846-a7b2c1dbe04d",
+      "name": "Return No External",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1328,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f5f87cbe-7df8-4f0d-8fda-f078dc09277d",
+              "leftValue": "={{ $json.userIntent }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "536673b6-f7c4-4759-aa9e-8c9dfa29ba64",
+      "name": "Has User Intent?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -1328,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1288264-3a00-4f81-a267-4f2fae21ed16",
+              "name": "responseType",
+              "value": "text",
+              "type": "string"
+            },
+            {
+              "id": "2076233c-ebf0-445e-bd03-9f9796e08d80",
+              "name": "message",
+              "value": "Registration is not currently configured for this organisation. Please contact your administrator.",
+              "type": "string"
+            },
+            {
+              "id": "8990ff7a-3c6b-4c81-9021-66c9ca8514ba",
+              "name": "registrationComplete",
+              "value": false,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "163f6828-1a75-4094-8aa2-241ca67480ba",
+      "name": "Return No Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "registration_sessions",
+        "options": {},
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "3575d546-39ed-4271-8bfe-88bb2957caf1",
+      "name": "Fetch Registration Session",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -1104,
+        160
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const orgDoc = $('Find Org by Phone').first().json;\nconst orgName = orgDoc.name || 'Organization';\nconst triggerData = $('Execute Workflow Trigger').first().json;\nconst userInput = triggerData.userInput;\nconst phoneNumber = triggerData.phoneNumber;\nconst userIntent = orgDoc.userIntent;\n\n// Get previously collected fields from session\nconst session = $('Fetch Registration Session').first().json;\nlet previousFields = {};\nif (session && session.collectedFields) {\n  try {\n    previousFields = typeof session.collectedFields === 'string'\n      ? JSON.parse(session.collectedFields)\n      : session.collectedFields;\n  } catch(e) {\n    previousFields = {};\n  }\n}\n\nfunction buildParameterGuide(parameters) {\n  if (!parameters || parameters.length === 0) return \"  No parameters.\";\n  return parameters.map(p => {\n    let line = `  - PARAMETER_NAME_COPY_EXACTLY=\"${p.name}\" | Type: ${p.type} | resolvedBy: ${p.resolvedBy}`;\n    if (p.description) line += ` | Description: ${p.description}`;\n    if (p.options) line += ` | Valid options: ${p.options.join(\", \")}`;\n    return line;\n  }).join(\"\\n\");\n}\n\nconst paramGuide = buildParameterGuide(userIntent.parameters);\nconst previousFieldsJson = JSON.stringify(previousFields);\n\nconst prompt = `\nORGANISATION: ${orgName}\nUSER PHONE NUMBER: ${phoneNumber}\nUSER MESSAGE: ${userInput}\n\nPREVIOUSLY COLLECTED FIELDS:\n${previousFieldsJson}\n\nUSER INTENT PARAMETERS:\n${paramGuide}\n`;\n\nreturn [{ json: { prompt } }];"
+      },
+      "id": "2f21b188-199f-4f60-b5cb-fb89c588bc6a",
+      "name": "Build User Intent Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -880,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {
+          "systemMessage": "You are a friendly WhatsApp onboarding assistant.\n\nYOUR TASK:\nCollect user information for registration based on the USER INTENT PARAMETERS provided in each message.\n\n---\n\nSTEP 1 - RECOVER STATE (CRITICAL):\nRead the PREVIOUSLY COLLECTED FIELDS from the input.\nEvery field already present there is CONFIRMED — carry it forward unchanged into collectedData.fields.\nNever re-ask for or drop a confirmed field.\n\n---\n\nSTEP 2 - PROCESS PARAMETERS:\n\nFIELD NAMING — NON-NEGOTIABLE:\nThe key in collectedData.fields MUST be copied character-for-character from the name property of that parameter. It is case-sensitive.\n\nFor each parameter, read its resolvedBy property:\n\nresolvedBy = \"user\"\n  Must come from the user message or PREVIOUSLY COLLECTED FIELDS.\n  If not found in either -> missing. Ask naturally in STEP 4.\n  FOLLOW-UP OVERRIDE: If already asked once and user replied with anything relevant -> accept immediately.\n\nresolvedBy = \"auto\"\n  Generate the value yourself. Always produce a value. Never missing.\n\nresolvedBy = \"infer\"\n  Use the description and available context (like USER PHONE NUMBER) to determine the value silently.\n  Always produce a value. Never ask the user.\n\nOnly resolvedBy = \"user\" parameters can ever be missing.\n\n---\n\nSTEP 3 - SMART EXTRACTION:\nScan the user message for ALL relevant information at once.\nIf the message contains multiple pieces of data (e.g. \"my name is Akshay and email is abc@gmail.com\"), extract ALL matching parameters in one go.\nDo not ask for a field that is already present in the user message.\n\n---\n\nSTEP 4 - DECIDE:\n\nIf PREVIOUSLY COLLECTED FIELDS is empty or {} (first interaction):\n  Greet warmly using the ORGANISATION name.\n  Ask naturally for all missing resolvedBy=\"user\" fields.\n  Do NOT use technical parameter names — ask like a human support agent.\n\nIf user message does not contain any relevant registration data AND there are still missing fields:\n  Respond politely: \"Sorry, I didn't quite get that. Could you please provide [missing info] to continue the registration?\"\n\nIf all resolvedBy = \"user\" parameters are collected (from previous + current):\n  allCollected = true\n  Confirm briefly (e.g. \"Thanks, got it!\").\n\nIf any resolvedBy = \"user\" parameter is still missing:\n  allCollected = false\n  Acknowledge what you received and ask for the remaining fields naturally.\n\n---\n\nCRITICAL: collectedData.fields must ALWAYS contain ALL parameters — the previously collected ones, the newly collected ones, AND the auto/infer resolved ones. Never return a partial set.\n\nReturn valid JSON only. No markdown. No code fences.\n\n{\n  \"allCollected\": true_or_false,\n  \"collectedData\": {\n    \"fields\": {}\n  },\n  \"message\": \"message to send to user\"\n}"
+        }
+      },
+      "id": "93281c67-7170-4fe0-9261-a7b0dd570153",
+      "name": "Registration Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -656,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "55dfd84c-784f-4e0c-89c8-68f38d3e723b",
+      "name": "OpenAI Chat Model (Reg)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        384
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "VVthz3x6yRtdRX01",
+          "name": "ddf-open-ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=reg_{{ $('Execute Workflow Trigger').first().json.phoneNumber }}"
+      },
+      "id": "63abe0e5-28f9-4141-a013-28665f135fa1",
+      "name": "Simple Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -560,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const rawOutput = $input.first().json.output || '';\nconst cleaned = rawOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (err) {\n  throw new Error('Failed to parse Registration Agent response: ' + err.message + ' | Raw: ' + rawOutput);\n}\nreturn [{ json: parsed }];"
+      },
+      "id": "f4f8a8b5-760b-43f0-a7ea-def6ba4e1e92",
+      "name": "Parse Registration Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a9cb7d33-6b7c-45af-8c6c-5e3c6dd8c93e",
+              "leftValue": "={{ $json.allCollected }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "43a1788b-6b05-490c-a580-fc12aa4d030d",
+      "name": "All Fields Collected?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -80,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "collection": "registration_sessions",
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "0bebfc72-00af-44b7-9443-382419e2e7b2",
+      "name": "Delete Old Session",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        144,
+        256
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const session = $('Fetch Registration Session').first().json;\nconst regResponse = $('Parse Registration Response').first().json;\nconst triggerData = $('Execute Workflow Trigger').first().json;\n\nreturn [{\n  json: {\n    phoneNumber: triggerData.phoneNumber,\n    firstMessage: session?.firstMessage || triggerData.userInput,\n    collectedFields: JSON.stringify(regResponse.collectedData?.fields || {})\n  }\n}];"
+      },
+      "id": "aecff011-0e5b-4ea0-a104-1ee26f0c1606",
+      "name": "Prepare Session Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "registration_sessions",
+        "fields": "phoneNumber,firstMessage,collectedFields",
+        "options": {}
+      },
+      "id": "d28addc1-11e6-411a-95d2-5a26199d883e",
+      "name": "Save Registration Session",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        256
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "bDqjxUvHKn4o0vQa",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "executionId": "={{ $execution.id }}",
+            "userId": "",
+            "organizationId": "={{ $('Find Org by Phone').first().json._id }}",
+            "source": "registration_agent",
+            "model": "gpt-4.1-mini",
+            "inputMessage": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "parsedMessage": "={{ $('Parse Registration Response').first().json.message }}",
+            "intent": "user_intent",
+            "action": "ask_user"
+          },
+          "schema": [
+            {
+              "id": "executionId",
+              "displayName": "executionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organizationId",
+              "displayName": "organizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inputMessage",
+              "displayName": "inputMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parsedMessage",
+              "displayName": "parsedMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "action",
+              "displayName": "action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "id": "bbaaa051-32b5-4dab-837c-96448c196dfd",
+      "name": "Log Registration Token (Ask)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const regResponse = $('Parse Registration Response').first().json;\nreturn [{ json: {\n  responseType: \"text\",\n  message: regResponse.message,\n  registrationComplete: false\n}}];"
+      },
+      "id": "369106dc-0a98-40fc-836a-370f2bfc193b",
+      "name": "Return Ask More",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const regResponse = $('Parse Registration Response').first().json;\nconst orgDoc = $('Find Org by Phone').first().json;\nconst userIntent = orgDoc.userIntent;\n\nconst payload = {\n  intent: userIntent.name,\n  params: {\n    fields: regResponse.collectedData?.fields || {},\n    additionalInfo: {\n      ...(userIntent.additionalInfo || {}),\n      organizationId: orgDoc.parentOrganizationId\n    }\n  }\n};\n\nreturn [{ json: payload }];"
+      },
+      "id": "e246f3ac-460f-4ccc-b910-9618c5009532",
+      "name": "Prepare Save User Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        144,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://8bef-103-214-235-123.ngrok-free.app/ai-chat/save-user",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "7a6b9279-945f-4b60-8e62-972f5d264518",
+      "name": "Call Save User API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        368,
+        64
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BCSZHMjz3Ult8yMA",
+          "name": "x-n8n-api-key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const apiResponse = $input.first().json;\nconst orgDoc = $('Find Org by Phone').first().json;\nconst regResponse = $('Parse Registration Response').first().json;\nconst triggerData = $('Execute Workflow Trigger').first().json;\nconst fields = regResponse.collectedData?.fields || {};\nconst userIntent = orgDoc.userIntent;\nconst params = userIntent.parameters || [];\n\nfunction getFieldValue(internalName) {\n  const mapped = params.find(p => p.mapTo === internalName);\n  if (mapped && fields[mapped.name] !== undefined) {\n    return fields[mapped.name];\n  }\n  if (fields[internalName] !== undefined) {\n    return fields[internalName];\n  }\n  return '';\n}\n\nconst userId = apiResponse.userId || apiResponse._id || null;\nif (!userId) {\n  throw new Error('Save User API did not return a userId. Response: ' + JSON.stringify(apiResponse));\n}\n\nreturn [{\n  json: {\n    name: getFieldValue('name'),\n    phoneNumber: getFieldValue('phoneNumber') || triggerData.phoneNumber,\n    email: getFieldValue('email'),\n    userId: userId,\n    organizationId: orgDoc._id,\n    parentOrganizationId: orgDoc.parentOrganizationId\n  }\n}];"
+      },
+      "id": "0eb76328-d814-4837-b6fa-33aef68f98bc",
+      "name": "Build User Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "users",
+        "fields": "name,phoneNumber,email,userId,organizationId,parentOrganizationId",
+        "options": {}
+      },
+      "id": "07728fdb-c339-4db3-885c-0e8bd8bb91ea",
+      "name": "Save New User",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        64
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const session = $('Fetch Registration Session').first().json;\nconst triggerData = $('Execute Workflow Trigger').first().json;\nconst firstMessage = session?.firstMessage || triggerData.userInput || 'hi';\nreturn [{ json: { firstMessage } }];"
+      },
+      "id": "6b9edb9f-e2a5-410a-a810-3cd6d0f50d01",
+      "name": "Extract First Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "collection": "registration_sessions",
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "8e3e40fd-6c4c-4ee7-a3bb-31d53d1ca906",
+      "name": "Delete Registration Session",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        64
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "bDqjxUvHKn4o0vQa",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "executionId": "={{ $execution.id }}",
+            "userId": "",
+            "organizationId": "={{ $('Find Org by Phone').first().json._id }}",
+            "source": "registration_agent",
+            "model": "gpt-4.1-mini",
+            "inputMessage": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
+            "parsedMessage": "={{ $('Parse Registration Response').first().json.message }}",
+            "intent": "user_intent",
+            "action": "registration_complete"
+          },
+          "schema": [
+            {
+              "id": "executionId",
+              "displayName": "executionId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userId",
+              "displayName": "userId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "organizationId",
+              "displayName": "organizationId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "model",
+              "displayName": "model",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inputMessage",
+              "displayName": "inputMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "parsedMessage",
+              "displayName": "parsedMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "action",
+              "displayName": "action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "id": "ecd131f5-4573-4f95-8f8e-77eaf5f80402",
+      "name": "Log Registration Token (Complete)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const firstMessage = $('Extract First Message').first().json.firstMessage;\nreturn [{ json: {\n  responseType: \"text\",\n  message: \"\",\n  registrationComplete: true,\n  firstMessage: firstMessage\n}}];"
+      },
+      "id": "6a7aa6ff-8b5c-4e4c-a835-89d5d698af83",
+      "name": "Return Complete",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1712,
+        64
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Find Org by Phone",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Org by Phone": {
+      "main": [
+        [
+          {
+            "node": "Org Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Org Exists?": {
+      "main": [
+        [
+          {
+            "node": "Allow External User?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return No Org",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Allow External User?": {
+      "main": [
+        [
+          {
+            "node": "Has User Intent?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return No External",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has User Intent?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Registration Session",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return No Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Registration Session": {
+      "main": [
+        [
+          {
+            "node": "Build User Intent Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build User Intent Prompt": {
+      "main": [
+        [
+          {
+            "node": "Registration Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registration Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Registration Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model (Reg)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Registration Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Registration Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Registration Response": {
+      "main": [
+        [
+          {
+            "node": "All Fields Collected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Fields Collected?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Save User Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Old Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Old Session": {
+      "main": [
+        [
+          {
+            "node": "Prepare Session Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Session Data": {
+      "main": [
+        [
+          {
+            "node": "Save Registration Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Registration Session": {
+      "main": [
+        [
+          {
+            "node": "Log Registration Token (Ask)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Registration Token (Ask)": {
+      "main": [
+        [
+          {
+            "node": "Return Ask More",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Save User Payload": {
+      "main": [
+        [
+          {
+            "node": "Call Save User API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Save User API": {
+      "main": [
+        [
+          {
+            "node": "Build User Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build User Record": {
+      "main": [
+        [
+          {
+            "node": "Save New User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save New User": {
+      "main": [
+        [
+          {
+            "node": "Extract First Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract First Message": {
+      "main": [
+        [
+          {
+            "node": "Delete Registration Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Registration Session": {
+      "main": [
+        [
+          {
+            "node": "Log Registration Token (Complete)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Registration Token (Complete)": {
+      "main": [
+        [
+          {
+            "node": "Return Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "caa9067d-a4f6-41f4-bb64-0c66b45cdc7c",
+  "meta": {
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
+  },
+  "id": "1A5eRkRPjqHuFrIs",
+  "tags": []
+}

@@ -1,0 +1,674 @@
+{
+  "name": "WF1 — WhatsApp Gateway (v11)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "aa4cc945-856a-4f0f-98ac-a6caec44a12c",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -5632,
+        3728
+      ],
+      "webhookId": "97b2ba5c-ef28-4229-b359-8cebace2c318",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "GbBrEd6jkeqCPCEY",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e3fcd88b-72ce-409f-a247-3f450e4b7721",
+              "leftValue": "={{ $json.messages }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "3a17c7aa-7e61-4429-ae8a-f4e977915b32",
+      "name": "Has Messages",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -5408,
+        3728
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b2b5b6dc-73c8-4525-8301-1ec09efab619",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "61aba04d-36ed-4f2f-9d59-73c10dedc7e8",
+                    "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}",
+                    "rightValue": "interactive",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "interactive"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "0e9c3d51-6214-43ce-aee2-a3b713bbd64b",
+      "name": "Message Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -4960,
+        3696
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "626c1e51-6b9a-4c40-a82c-f065f78a56c8",
+              "name": "text",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+              "type": "string"
+            },
+            {
+              "id": "01324adb-95f5-458b-9040-a965d3a88524",
+              "name": "isPagination",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "1327126a-055f-40c5-b840-29765553e3f5",
+              "name": "messageSource",
+              "value": "text",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c7b7bbf-420c-46c5-86cc-c9faff412ae8",
+      "name": "Text Field",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4736,
+        3520
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const interactive = $('WhatsApp Trigger').item.json.messages[0].interactive;\nlet text = '';\nlet isPagination = false;\nlet pageInfo = null;\nlet messageSource = 'button';\n\nif (interactive.button_reply) {\n  const btnId = interactive.button_reply.id;\n  if (btnId === '__repeat_yes__') {\n    text = '__repeat_yes__';\n    messageSource = 'repeat_yes';\n  } else if (btnId === '__repeat_no__') {\n    text = '__repeat_no__';\n    messageSource = 'repeat_no';\n  } else {\n    text = interactive.button_reply.title;\n    messageSource = 'button';\n  }\n} else if (interactive.list_reply) {\n  const listId = interactive.list_reply.id || '';\n  if (listId.startsWith('__page__')) {\n    isPagination = true;\n    const parts = listId.split('__').filter(p => p !== '');\n    pageInfo = { intent: parts[1] || '', fieldName: parts[2] || '', page: parseInt(parts[3] || '1', 10) };\n    messageSource = 'pagination';\n  } else {\n    text = listId;\n    messageSource = 'list_reply';\n  }\n}\n\nreturn [{ json: { text, isPagination, pageInfo, messageSource } }];"
+      },
+      "id": "bc8c3c80-51eb-44e9-9cad-43b8c004122b",
+      "name": "Interactive message extract",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4736,
+        3712
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "Unknown Response",
+        "additionalFields": {}
+      },
+      "id": "6484969f-5836-4ced-9679-0fb338684f21",
+      "name": "Unknown Type Response",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -4736,
+        3920
+      ],
+      "webhookId": "e4814d63-6faa-4268-8009-b6d5728e066f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "LUWmF6zx9scLImUL",
+          "name": "Responseloop Whatsapp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d528375b-3c90-4e39-b96b-d3d4b6ae46e0",
+              "leftValue": "={{ $json.isPagination }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b564b028-8ce2-48df-9e08-3972298113ab",
+      "name": "Is Pagination?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -4512,
+        3632
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "options_cache",
+        "options": {},
+        "query": "={{ JSON.stringify({ phoneNumber: $('WhatsApp Trigger').item.json.messages[0].from, intentName: $json.pageInfo.intent, fieldName: $json.pageInfo.fieldName }) }}"
+      },
+      "id": "cb050c00-934e-42c7-a6e5-e9c54d66c36d",
+      "name": "Check Options Cache",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -4288,
+        3440
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const cache = $input.first().json;\nconst pageInfo = $('Interactive message extract').first().json.pageInfo;\nconst phoneNumber = $('WhatsApp Trigger').item.json.messages[0].from;\n\nif (!cache || !cache.options) {\n  return [{ json: { responseType: 'text', message: 'Options have expired. Please start your request again.' } }];\n}\n\nlet allOptions = [];\ntry { allOptions = typeof cache.options === 'string' ? JSON.parse(cache.options) : cache.options; } catch(e) { allOptions = []; }\n\nconst page = pageInfo.page || 1;\nconst intentName = pageInfo.intent;\nconst fieldName = pageInfo.fieldName;\nconst totalPages = Math.ceil(allOptions.length / 10);\n\nlet rows = [];\nlet startIdx, endIdx;\n\nif (page === 1) { startIdx = 0; endIdx = Math.min(9, allOptions.length); }\nelse { startIdx = (page - 1) * 10 - 1; endIdx = Math.min(startIdx + 8, allOptions.length); }\n\nfor (let i = startIdx; i < endIdx; i++) {\n  rows.push({ id: allOptions[i].id, title: (allOptions[i].title || '').substring(0, 24) });\n}\n\nif (page > 1) rows.unshift({ id: '__page__' + intentName + '__' + fieldName + '__' + (page - 1), title: '◀ Previous' });\nif (page < totalPages) rows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page + 1), title: '▶ More options' });\n\nreturn [{ json: {\n  responseType: 'interactive', message: 'Please select an option:',\n  interactivePayload: { messaging_product: 'whatsapp', to: phoneNumber, type: 'interactive',\n    interactive: { type: 'list', body: { text: 'Please select an option:' },\n      action: { button: 'View options', sections: [{ title: 'Options', rows }] } } }\n} }];"
+      },
+      "id": "9faed5b1-9875-4c4b-827b-d77c0d202541",
+      "name": "Build Pagination List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4064,
+        3440
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $('WhatsApp Trigger').item.json.metadata.phone_number_id}}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.interactivePayload) }}",
+        "options": {}
+      },
+      "id": "00c7b1ee-b179-41a5-9a1a-d8ba77b1b0d3",
+      "name": "Send Pagination Response",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3840,
+        3440
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BCSZHMjz3Ult8yMA",
+          "name": "x-n8n-api-key"
+        },
+        "whatsAppApi": {
+          "id": "LUWmF6zx9scLImUL",
+          "name": "Responseloop Whatsapp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UVbAtI637oyEECs1",
+          "mode": "id"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "userInput": "={{ $json.text }}",
+            "phoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+            "display_phone_number": "={{ $('WhatsApp Trigger').item.json.metadata.display_phone_number }}",
+            "messageSource": "={{ $json.messageSource }}"
+          },
+          "schema": [
+            {
+              "id": "userInput",
+              "displayName": "userInput",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phoneNumber",
+              "displayName": "phoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "display_phone_number",
+              "displayName": "display_phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messageSource",
+              "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "df8d5d62-20b2-46d8-9f13-ff3a0ca37a72",
+      "name": "Call Business Logic",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -4288,
+        3744
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0b55cf0b-5bae-4fe8-a8a4-95c491218b5c",
+                    "leftValue": "={{ $json.responseType }}",
+                    "rightValue": "interactive",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "interactive"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e5f912b-93ee-4295-86a6-dd36bba0709c",
+                    "leftValue": "={{ $json.responseType }}",
+                    "rightValue": "text",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "d59e340d-40f7-4281-a60f-1073820dca9d",
+      "name": "Route Response",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -4064,
+        3728
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v21.0/{{ $('WhatsApp Trigger').item.json.metadata.phone_number_id}}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.interactivePayload) }}",
+        "options": {}
+      },
+      "id": "61b83747-8ab2-4420-b1bb-2763f2bbb0bd",
+      "name": "Send Interactive Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -3840,
+        3648
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BCSZHMjz3Ult8yMA",
+          "name": "x-n8n-api-key"
+        },
+        "whatsAppApi": {
+          "id": "LUWmF6zx9scLImUL",
+          "name": "Responseloop Whatsapp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "id": "2c63f4f8-cc89-4a49-a8e4-60fb7daf0f92",
+      "name": "Send Text Reply",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -3840,
+        3840
+      ],
+      "webhookId": "b02ee0d8-9b7b-4dce-9e36-4b7ba131d2c1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "LUWmF6zx9scLImUL",
+          "name": "Responseloop Whatsapp"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v22.0/{{ $json.metadata.phone_number_id }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"status\": \"read\",\n  \"message_id\": \"{{ $json.messages[0].id }}\",\n  \"typing_indicator\": { \"type\": \"text\" }\n}",
+        "options": {}
+      },
+      "id": "5fdd90b2-68dc-47b0-bb23-f99aba4e24b9",
+      "name": "Typing Indicator",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -5168,
+        3712
+      ],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "LUWmF6zx9scLImUL",
+          "name": "Responseloop Whatsapp"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Has Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Messages": {
+      "main": [
+        [
+          {
+            "node": "Typing Indicator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Router": {
+      "main": [
+        [
+          {
+            "node": "Text Field",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Interactive message extract",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unknown Type Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Field": {
+      "main": [
+        [
+          {
+            "node": "Is Pagination?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interactive message extract": {
+      "main": [
+        [
+          {
+            "node": "Is Pagination?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Pagination?": {
+      "main": [
+        [
+          {
+            "node": "Check Options Cache",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Business Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Options Cache": {
+      "main": [
+        [
+          {
+            "node": "Build Pagination List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Pagination List": {
+      "main": [
+        [
+          {
+            "node": "Send Pagination Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Business Logic": {
+      "main": [
+        [
+          {
+            "node": "Route Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Response": {
+      "main": [
+        [
+          {
+            "node": "Send Interactive Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Text Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Typing Indicator": {
+      "main": [
+        [
+          {
+            "node": "Message Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "53bf4b7d-0e87-4e9f-bce4-46babf439fbb",
+  "meta": {
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
+  },
+  "id": "0zUr7HFhq2jBXOrM",
+  "tags": []
+}
