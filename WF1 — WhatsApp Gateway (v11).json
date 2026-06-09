@@ -1,5 +1,4 @@
 {
-  "name": "WF1 — WhatsApp Gateway (v11)",
   "nodes": [
     {
       "parameters": {
@@ -8,19 +7,19 @@
         ],
         "options": {}
       },
-      "id": "aa4cc945-856a-4f0f-98ac-a6caec44a12c",
+      "id": "5fe858d3-1720-4d31-a9ea-085db51e0976",
       "name": "WhatsApp Trigger",
       "type": "n8n-nodes-base.whatsAppTrigger",
       "typeVersion": 1,
       "position": [
-        -5632,
-        3728
+        -1488,
+        112
       ],
-      "webhookId": "97b2ba5c-ef28-4229-b359-8cebace2c318",
+      "webhookId": "3a37e8f6-d4aa-4af8-a481-3bcc33b19a3f",
       "credentials": {
         "whatsAppTriggerApi": {
-          "id": "GbBrEd6jkeqCPCEY",
-          "name": "WhatsApp OAuth account"
+          "id": "CHKanEWI45SSVcgF",
+          "name": "WhatsApp Trigger - Idea Spark - Chat bot - 15556345743"
         }
       }
     },
@@ -49,13 +48,13 @@
         },
         "options": {}
       },
-      "id": "3a17c7aa-7e61-4429-ae8a-f4e977915b32",
+      "id": "56716eac-e504-456e-8d31-aa3c87e364b8",
       "name": "Has Messages",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -5408,
-        3728
+        -1264,
+        112
       ]
     },
     {
@@ -116,13 +115,13 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "0e9c3d51-6214-43ce-aee2-a3b713bbd64b",
+      "id": "7e24d2a6-22e8-4ae6-86d9-0083261611e5",
       "name": "Message Router",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -4960,
-        3696
+        -816,
+        80
       ]
     },
     {
@@ -151,26 +150,26 @@
         },
         "options": {}
       },
-      "id": "3c7b7bbf-420c-46c5-86cc-c9faff412ae8",
+      "id": "0644f63f-4613-4099-bb4a-e2e81b891d4c",
       "name": "Text Field",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -4736,
-        3520
+        -592,
+        -96
       ]
     },
     {
       "parameters": {
         "jsCode": "const interactive = $('WhatsApp Trigger').item.json.messages[0].interactive;\nlet text = '';\nlet isPagination = false;\nlet pageInfo = null;\nlet messageSource = 'button';\n\nif (interactive.button_reply) {\n  const btnId = interactive.button_reply.id;\n  if (btnId === '__repeat_yes__') {\n    text = '__repeat_yes__';\n    messageSource = 'repeat_yes';\n  } else if (btnId === '__repeat_no__') {\n    text = '__repeat_no__';\n    messageSource = 'repeat_no';\n  } else {\n    text = interactive.button_reply.title;\n    messageSource = 'button';\n  }\n} else if (interactive.list_reply) {\n  const listId = interactive.list_reply.id || '';\n  if (listId.startsWith('__page__')) {\n    isPagination = true;\n    const parts = listId.split('__').filter(p => p !== '');\n    pageInfo = { intent: parts[1] || '', fieldName: parts[2] || '', page: parseInt(parts[3] || '1', 10) };\n    messageSource = 'pagination';\n  } else {\n    text = listId;\n    messageSource = 'list_reply';\n  }\n}\n\nreturn [{ json: { text, isPagination, pageInfo, messageSource } }];"
       },
-      "id": "bc8c3c80-51eb-44e9-9cad-43b8c004122b",
+      "id": "7841f61d-7527-4293-a89f-07a08c0936ca",
       "name": "Interactive message extract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -4736,
-        3712
+        -592,
+        96
       ]
     },
     {
@@ -181,19 +180,19 @@
         "textBody": "Unknown Response",
         "additionalFields": {}
       },
-      "id": "6484969f-5836-4ced-9679-0fb338684f21",
+      "id": "92f4ecc8-0bc7-4867-a1ab-10d70fb75dbc",
       "name": "Unknown Type Response",
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1,
       "position": [
-        -4736,
-        3920
+        -592,
+        304
       ],
       "webhookId": "e4814d63-6faa-4268-8009-b6d5728e066f",
       "credentials": {
         "whatsAppApi": {
-          "id": "LUWmF6zx9scLImUL",
-          "name": "Responseloop Whatsapp"
+          "id": "B1mbCw4xDpwfRY02",
+          "name": "WhatsApp Trigger - Idea Spark - Chat bot - 15556345743"
         }
       }
     },
@@ -222,13 +221,13 @@
         },
         "options": {}
       },
-      "id": "b564b028-8ce2-48df-9e08-3972298113ab",
+      "id": "65294aee-2240-496e-b534-c4659725c6f2",
       "name": "Is Pagination?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -4512,
-        3632
+        -368,
+        16
       ]
     },
     {
@@ -237,33 +236,28 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('WhatsApp Trigger').item.json.messages[0].from, intentName: $json.pageInfo.intent, fieldName: $json.pageInfo.fieldName }) }}"
       },
-      "id": "cb050c00-934e-42c7-a6e5-e9c54d66c36d",
+      "id": "b545101c-3693-4d6b-8768-01d05a057759",
       "name": "Check Options Cache",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -4288,
-        3440
+        -144,
+        -176
       ],
       "alwaysOutputData": true,
-      "credentials": {
-        "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
-        }
-      }
+      "credentials": {}
     },
     {
       "parameters": {
-        "jsCode": "const cache = $input.first().json;\nconst pageInfo = $('Interactive message extract').first().json.pageInfo;\nconst phoneNumber = $('WhatsApp Trigger').item.json.messages[0].from;\n\nif (!cache || !cache.options) {\n  return [{ json: { responseType: 'text', message: 'Options have expired. Please start your request again.' } }];\n}\n\nlet allOptions = [];\ntry { allOptions = typeof cache.options === 'string' ? JSON.parse(cache.options) : cache.options; } catch(e) { allOptions = []; }\n\nconst page = pageInfo.page || 1;\nconst intentName = pageInfo.intent;\nconst fieldName = pageInfo.fieldName;\nconst totalPages = Math.ceil(allOptions.length / 10);\n\nlet rows = [];\nlet startIdx, endIdx;\n\nif (page === 1) { startIdx = 0; endIdx = Math.min(9, allOptions.length); }\nelse { startIdx = (page - 1) * 10 - 1; endIdx = Math.min(startIdx + 8, allOptions.length); }\n\nfor (let i = startIdx; i < endIdx; i++) {\n  rows.push({ id: allOptions[i].id, title: (allOptions[i].title || '').substring(0, 24) });\n}\n\nif (page > 1) rows.unshift({ id: '__page__' + intentName + '__' + fieldName + '__' + (page - 1), title: '◀ Previous' });\nif (page < totalPages) rows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page + 1), title: '▶ More options' });\n\nreturn [{ json: {\n  responseType: 'interactive', message: 'Please select an option:',\n  interactivePayload: { messaging_product: 'whatsapp', to: phoneNumber, type: 'interactive',\n    interactive: { type: 'list', body: { text: 'Please select an option:' },\n      action: { button: 'View options', sections: [{ title: 'Options', rows }] } } }\n} }];"
+        "jsCode": "const cache = $input.first().json;\nconst pageInfo = $('Interactive message extract').first().json.pageInfo;\nconst phoneNumber = $('WhatsApp Trigger').item.json.messages[0].from;\n\nif (!cache || !cache.options) {\n  return [{ json: { responseType: 'text', message: 'Options have expired. Please start your request again.' } }];\n}\n\nlet allOptions = [];\ntry { allOptions = typeof cache.options === 'string' ? JSON.parse(cache.options) : cache.options; } catch(e) { allOptions = []; }\n\nconst page = pageInfo.page || 1;\nconst intentName = pageInfo.intent;\nconst fieldName = pageInfo.fieldName;\n\nfunction paginateSections(sections, page, intentName, fieldName) {\n  const PAGE_SIZE = 8;\n  const flatRows = [];\n  for (const sec of sections) {\n    for (const row of sec.rows) {\n      flatRows.push({\n        sectionTitle: sec.title,\n        rowId: row.id,\n        rowTitle: row.title\n      });\n    }\n  }\n  const totalPages = Math.ceil(flatRows.length / PAGE_SIZE);\n  const startIdx = (page - 1) * PAGE_SIZE;\n  const endIdx = Math.min(startIdx + PAGE_SIZE, flatRows.length);\n  const pageRows = flatRows.slice(startIdx, endIdx);\n  const paginatedSections = [];\n  const sectionMap = {};\n  for (const item of pageRows) {\n    if (!sectionMap[item.sectionTitle]) {\n      sectionMap[item.sectionTitle] = { title: item.sectionTitle, rows: [] };\n      paginatedSections.push(sectionMap[item.sectionTitle]);\n    }\n    sectionMap[item.sectionTitle].rows.push({ id: item.rowId, title: item.rowTitle });\n  }\n  const navigationRows = [];\n  if (page > 1) {\n    navigationRows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page - 1), title: '◀ Previous dates' });\n  }\n  if (page < totalPages) {\n    navigationRows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page + 1), title: 'More dates & times' });\n  }\n  if (navigationRows.length > 0) {\n    paginatedSections.push({ title: 'Other dates', rows: navigationRows });\n  }\n  return paginatedSections;\n}\n\nif (allOptions.length > 0 && allOptions[0].rows) {\n  const paginated = paginateSections(allOptions, page, intentName, fieldName);\n  return [{ json: {\n    responseType: 'interactive', message: 'Please select an option:',\n    interactivePayload: { messaging_product: 'whatsapp', to: phoneNumber, type: 'interactive',\n      interactive: { type: 'list', body: { text: 'Please select an option:' },\n        action: { button: 'View options', sections: paginated } } }\n  } }];\n}\n\nconst totalPages = Math.ceil(allOptions.length / 10);\nlet rows = [];\nlet startIdx, endIdx;\nif (page === 1) { startIdx = 0; endIdx = Math.min(9, allOptions.length); }\nelse { startIdx = (page - 1) * 10 - 1; endIdx = Math.min(startIdx + 8, allOptions.length); }\n\nfor (let i = startIdx; i < endIdx; i++) {\n  rows.push({ id: allOptions[i].id, title: (allOptions[i].title || '').substring(0, 24) });\n}\n\nif (page > 1) rows.unshift({ id: '__page__' + intentName + '__' + fieldName + '__' + (page - 1), title: '◀ Previous' });\nif (page < totalPages) rows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page + 1), title: '▶ More options' });\n\nreturn [{ json: {\n  responseType: 'interactive', message: 'Please select an option:',\n  interactivePayload: { messaging_product: 'whatsapp', to: phoneNumber, type: 'interactive',\n    interactive: { type: 'list', body: { text: 'Please select an option:' },\n      action: { button: 'View options', sections: [{ title: 'Options', rows }] } } }\n} }];"
       },
-      "id": "9faed5b1-9875-4c4b-827b-d77c0d202541",
+      "id": "2cad7844-275e-4c3e-8273-2dc27e9a036f",
       "name": "Build Pagination List",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -4064,
-        3440
+        80,
+        -176
       ]
     },
     {
@@ -277,22 +271,18 @@
         "jsonBody": "={{ JSON.stringify($json.interactivePayload) }}",
         "options": {}
       },
-      "id": "00c7b1ee-b179-41a5-9a1a-d8ba77b1b0d3",
+      "id": "ada7062d-fb8e-4c37-8949-8712891d4cd3",
       "name": "Send Pagination Response",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -3840,
-        3440
+        304,
+        -176
       ],
       "credentials": {
-        "httpHeaderAuth": {
-          "id": "BCSZHMjz3Ult8yMA",
-          "name": "x-n8n-api-key"
-        },
         "whatsAppApi": {
-          "id": "LUWmF6zx9scLImUL",
-          "name": "Responseloop Whatsapp"
+          "id": "B1mbCw4xDpwfRY02",
+          "name": "WhatsApp Trigger - Idea Spark - Chat bot - 15556345743"
         }
       }
     },
@@ -300,8 +290,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "UVbAtI637oyEECs1",
-          "mode": "id"
+          "value": "dnZEj0RKsfVDPjKa",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/dnZEj0RKsfVDPjKa"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -352,13 +343,13 @@
         },
         "options": {}
       },
-      "id": "df8d5d62-20b2-46d8-9f13-ff3a0ca37a72",
+      "id": "f06d2a38-d199-4966-9da6-c6465d843188",
       "name": "Call Business Logic",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -4288,
-        3744
+        -144,
+        128
       ]
     },
     {
@@ -419,13 +410,13 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "d59e340d-40f7-4281-a60f-1073820dca9d",
+      "id": "39e7d57e-164a-4236-805a-a9da88578ff8",
       "name": "Route Response",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -4064,
-        3728
+        80,
+        112
       ]
     },
     {
@@ -439,22 +430,18 @@
         "jsonBody": "={{ JSON.stringify($json.interactivePayload) }}",
         "options": {}
       },
-      "id": "61b83747-8ab2-4420-b1bb-2763f2bbb0bd",
+      "id": "439be274-3a26-49ea-84d9-bce49cd2ec43",
       "name": "Send Interactive Message",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -3840,
-        3648
+        304,
+        32
       ],
       "credentials": {
-        "httpHeaderAuth": {
-          "id": "BCSZHMjz3Ult8yMA",
-          "name": "x-n8n-api-key"
-        },
         "whatsAppApi": {
-          "id": "LUWmF6zx9scLImUL",
-          "name": "Responseloop Whatsapp"
+          "id": "B1mbCw4xDpwfRY02",
+          "name": "WhatsApp Trigger - Idea Spark - Chat bot - 15556345743"
         }
       }
     },
@@ -466,19 +453,19 @@
         "textBody": "={{ $json.message }}",
         "additionalFields": {}
       },
-      "id": "2c63f4f8-cc89-4a49-a8e4-60fb7daf0f92",
+      "id": "bab2f662-705c-49d9-8d10-12a7a2050030",
       "name": "Send Text Reply",
       "type": "n8n-nodes-base.whatsApp",
       "typeVersion": 1,
       "position": [
-        -3840,
-        3840
+        304,
+        224
       ],
       "webhookId": "b02ee0d8-9b7b-4dce-9e36-4b7ba131d2c1",
       "credentials": {
         "whatsAppApi": {
-          "id": "LUWmF6zx9scLImUL",
-          "name": "Responseloop Whatsapp"
+          "id": "B1mbCw4xDpwfRY02",
+          "name": "WhatsApp Trigger - Idea Spark - Chat bot - 15556345743"
         }
       }
     },
@@ -493,23 +480,22 @@
         "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"status\": \"read\",\n  \"message_id\": \"{{ $json.messages[0].id }}\",\n  \"typing_indicator\": { \"type\": \"text\" }\n}",
         "options": {}
       },
-      "id": "5fdd90b2-68dc-47b0-bb23-f99aba4e24b9",
+      "id": "957f31cb-d700-44e1-85c3-293a5cc3967d",
       "name": "Typing Indicator",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -5168,
-        3712
+        -1024,
+        96
       ],
       "credentials": {
         "whatsAppApi": {
-          "id": "LUWmF6zx9scLImUL",
-          "name": "Responseloop Whatsapp"
+          "id": "B1mbCw4xDpwfRY02",
+          "name": "WhatsApp Trigger - Idea Spark - Chat bot - 15556345743"
         }
       }
     }
   ],
-  "pinData": {},
   "connections": {
     "WhatsApp Trigger": {
       "main": [
@@ -661,14 +647,8 @@
       ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "53bf4b7d-0e87-4e9f-bce4-46babf439fbb",
+  "pinData": {},
   "meta": {
-    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
-  },
-  "id": "0zUr7HFhq2jBXOrM",
-  "tags": []
+    "instanceId": "04a9c58622056ef55515df3e1f34eb7e9fbe2a87feeda0dcc951b2fb4871723b"
+  }
 }

@@ -1,17 +1,16 @@
 {
-  "name": "WF3 (User Creation)",
   "nodes": [
     {
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "211b62e1-ce3d-4c8c-8755-15a96795c540",
+      "id": "a83ffb2f-c3b9-4004-a223-e0a0b57cfb0e",
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -2224,
-        448
+        -2656,
+        208
       ]
     },
     {
@@ -20,19 +19,19 @@
         "options": {},
         "query": "={{ JSON.stringify({ businessPhoneNumber: $json.display_phone_number }) }}"
       },
-      "id": "08011f5b-2ffc-4485-a5fd-9c45baf9005b",
+      "id": "2cb98b53-2488-4d70-b1bd-88e3834ae1ac",
       "name": "Find Org by Phone",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -2000,
-        448
+        -2432,
+        208
       ],
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "Y72yvbsgwvQf7SQu",
+          "name": "MongoDB account"
         }
       }
     },
@@ -61,13 +60,13 @@
         },
         "options": {}
       },
-      "id": "6053ffc6-c481-4bb3-9494-f6d137728c13",
+      "id": "846280b2-a31b-4f43-a8fd-1ebdca319fff",
       "name": "Org Exists?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -1776,
-        448
+        -2208,
+        208
       ]
     },
     {
@@ -96,13 +95,13 @@
         },
         "options": {}
       },
-      "id": "0d1a2db6-dac2-4ddc-b2fb-a1cc18a193ff",
+      "id": "e810e324-2ccf-45aa-aa25-9cdf2f69a8a4",
       "name": "Return No Org",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1552,
-        544
+        -1984,
+        304
       ]
     },
     {
@@ -129,13 +128,13 @@
         },
         "options": {}
       },
-      "id": "c08170b6-c0ed-4f74-b923-2d69eff2987b",
+      "id": "0cf19644-3ecc-47c4-a9be-abaab1a05684",
       "name": "Allow External User?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -1552,
-        352
+        -1984,
+        112
       ]
     },
     {
@@ -164,13 +163,13 @@
         },
         "options": {}
       },
-      "id": "b2b9c8cb-77e1-4834-8846-a7b2c1dbe04d",
+      "id": "4584a562-56af-4a5f-8aae-dfac08f32cbf",
       "name": "Return No External",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1328,
-        448
+        -1760,
+        208
       ]
     },
     {
@@ -198,13 +197,13 @@
         },
         "options": {}
       },
-      "id": "536673b6-f7c4-4759-aa9e-8c9dfa29ba64",
+      "id": "33751ca7-4876-4497-b06f-c9934b241975",
       "name": "Has User Intent?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -1328,
-        256
+        -1760,
+        16
       ]
     },
     {
@@ -233,13 +232,13 @@
         },
         "options": {}
       },
-      "id": "163f6828-1a75-4094-8aa2-241ca67480ba",
+      "id": "e8428739-deaf-4d12-a583-f21b4515fbf7",
       "name": "Return No Config",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1104,
-        352
+        -1536,
+        112
       ]
     },
     {
@@ -248,19 +247,19 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "3575d546-39ed-4271-8bfe-88bb2957caf1",
+      "id": "05cd339c-bf05-4aec-a2b3-66d1c7c6d336",
       "name": "Fetch Registration Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -1104,
-        160
+        -1536,
+        -80
       ],
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "Y72yvbsgwvQf7SQu",
+          "name": "MongoDB account"
         }
       }
     },
@@ -268,13 +267,13 @@
       "parameters": {
         "jsCode": "const orgDoc = $('Find Org by Phone').first().json;\nconst orgName = orgDoc.name || 'Organization';\nconst triggerData = $('Execute Workflow Trigger').first().json;\nconst userInput = triggerData.userInput;\nconst phoneNumber = triggerData.phoneNumber;\nconst userIntent = orgDoc.userIntent;\n\n// Get previously collected fields from session\nconst session = $('Fetch Registration Session').first().json;\nlet previousFields = {};\nif (session && session.collectedFields) {\n  try {\n    previousFields = typeof session.collectedFields === 'string'\n      ? JSON.parse(session.collectedFields)\n      : session.collectedFields;\n  } catch(e) {\n    previousFields = {};\n  }\n}\n\nfunction buildParameterGuide(parameters) {\n  if (!parameters || parameters.length === 0) return \"  No parameters.\";\n  return parameters.map(p => {\n    let line = `  - PARAMETER_NAME_COPY_EXACTLY=\"${p.name}\" | Type: ${p.type} | resolvedBy: ${p.resolvedBy}`;\n    if (p.description) line += ` | Description: ${p.description}`;\n    if (p.options) line += ` | Valid options: ${p.options.join(\", \")}`;\n    return line;\n  }).join(\"\\n\");\n}\n\nconst paramGuide = buildParameterGuide(userIntent.parameters);\nconst previousFieldsJson = JSON.stringify(previousFields);\n\nconst prompt = `\nORGANISATION: ${orgName}\nUSER PHONE NUMBER: ${phoneNumber}\nUSER MESSAGE: ${userInput}\n\nPREVIOUSLY COLLECTED FIELDS:\n${previousFieldsJson}\n\nUSER INTENT PARAMETERS:\n${paramGuide}\n`;\n\nreturn [{ json: { prompt } }];"
       },
-      "id": "2f21b188-199f-4f60-b5cb-fb89c588bc6a",
+      "id": "34129bb0-a8b4-4379-9f9e-ce4e9900e914",
       "name": "Build User Intent Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -880,
-        160
+        -1312,
+        -80
       ]
     },
     {
@@ -285,13 +284,13 @@
           "systemMessage": "You are a friendly WhatsApp onboarding assistant.\n\nYOUR TASK:\nCollect user information for registration based on the USER INTENT PARAMETERS provided in each message.\n\n---\n\nSTEP 1 - RECOVER STATE (CRITICAL):\nRead the PREVIOUSLY COLLECTED FIELDS from the input.\nEvery field already present there is CONFIRMED — carry it forward unchanged into collectedData.fields.\nNever re-ask for or drop a confirmed field.\n\n---\n\nSTEP 2 - PROCESS PARAMETERS:\n\nFIELD NAMING — NON-NEGOTIABLE:\nThe key in collectedData.fields MUST be copied character-for-character from the name property of that parameter. It is case-sensitive.\n\nFor each parameter, read its resolvedBy property:\n\nresolvedBy = \"user\"\n  Must come from the user message or PREVIOUSLY COLLECTED FIELDS.\n  If not found in either -> missing. Ask naturally in STEP 4.\n  FOLLOW-UP OVERRIDE: If already asked once and user replied with anything relevant -> accept immediately.\n\nresolvedBy = \"auto\"\n  Generate the value yourself. Always produce a value. Never missing.\n\nresolvedBy = \"infer\"\n  Use the description and available context (like USER PHONE NUMBER) to determine the value silently.\n  Always produce a value. Never ask the user.\n\nOnly resolvedBy = \"user\" parameters can ever be missing.\n\n---\n\nSTEP 3 - SMART EXTRACTION:\nScan the user message for ALL relevant information at once.\nIf the message contains multiple pieces of data (e.g. \"my name is Akshay and email is abc@gmail.com\"), extract ALL matching parameters in one go.\nDo not ask for a field that is already present in the user message.\n\n---\n\nSTEP 4 - DECIDE:\n\nIf PREVIOUSLY COLLECTED FIELDS is empty or {} (first interaction):\n  Greet warmly using the ORGANISATION name.\n  Ask naturally for all missing resolvedBy=\"user\" fields.\n  Do NOT use technical parameter names — ask like a human support agent.\n\nIf user message does not contain any relevant registration data AND there are still missing fields:\n  Respond politely: \"Sorry, I didn't quite get that. Could you please provide [missing info] to continue the registration?\"\n\nIf all resolvedBy = \"user\" parameters are collected (from previous + current):\n  allCollected = true\n  Confirm briefly (e.g. \"Thanks, got it!\").\n\nIf any resolvedBy = \"user\" parameter is still missing:\n  allCollected = false\n  Acknowledge what you received and ask for the remaining fields naturally.\n\n---\n\nCRITICAL: collectedData.fields must ALWAYS contain ALL parameters — the previously collected ones, the newly collected ones, AND the auto/infer resolved ones. Never return a partial set.\n\nReturn valid JSON only. No markdown. No code fences.\n\n{\n  \"allCollected\": true_or_false,\n  \"collectedData\": {\n    \"fields\": {}\n  },\n  \"message\": \"message to send to user\"\n}"
         }
       },
-      "id": "93281c67-7170-4fe0-9261-a7b0dd570153",
+      "id": "4c82d5b0-d221-4550-8024-5f41691f3113",
       "name": "Registration Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        -656,
-        160
+        -1088,
+        -80
       ]
     },
     {
@@ -306,18 +305,18 @@
           "temperature": 0.3
         }
       },
-      "id": "55dfd84c-784f-4e0c-89c8-68f38d3e723b",
+      "id": "3d1780bf-6674-46b9-a06f-72381bf4a261",
       "name": "OpenAI Chat Model (Reg)",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
       "position": [
-        -656,
-        384
+        -1088,
+        144
       ],
       "credentials": {
         "openAiApi": {
-          "id": "VVthz3x6yRtdRX01",
-          "name": "ddf-open-ai"
+          "id": "BhKHP5ePofPdJtCW",
+          "name": "aami-dev"
         }
       }
     },
@@ -326,26 +325,26 @@
         "sessionIdType": "customKey",
         "sessionKey": "=reg_{{ $('Execute Workflow Trigger').first().json.phoneNumber }}"
       },
-      "id": "63abe0e5-28f9-4141-a013-28665f135fa1",
+      "id": "1b6c692e-c3d2-4746-be45-160f58a4824e",
       "name": "Simple Memory",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.3,
       "position": [
-        -560,
-        560
+        -992,
+        320
       ]
     },
     {
       "parameters": {
         "jsCode": "const rawOutput = $input.first().json.output || '';\nconst cleaned = rawOutput.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (err) {\n  throw new Error('Failed to parse Registration Agent response: ' + err.message + ' | Raw: ' + rawOutput);\n}\nreturn [{ json: parsed }];"
       },
-      "id": "f4f8a8b5-760b-43f0-a7ea-def6ba4e1e92",
+      "id": "d1644478-1c10-47d6-a43d-7626953e9cf1",
       "name": "Parse Registration Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -304,
-        160
+        -736,
+        -80
       ]
     },
     {
@@ -373,13 +372,13 @@
         },
         "options": {}
       },
-      "id": "43a1788b-6b05-490c-a580-fc12aa4d030d",
+      "id": "18242ecd-e775-46ad-b958-02e5f11c4ba0",
       "name": "All Fields Collected?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -80,
-        160
+        -512,
+        -80
       ]
     },
     {
@@ -388,18 +387,18 @@
         "collection": "registration_sessions",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "0bebfc72-00af-44b7-9443-382419e2e7b2",
+      "id": "6de8488a-a61b-4eb0-84ae-60a3affb9458",
       "name": "Delete Old Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        144,
-        256
+        -288,
+        16
       ],
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "Y72yvbsgwvQf7SQu",
+          "name": "MongoDB account"
         }
       }
     },
@@ -407,13 +406,13 @@
       "parameters": {
         "jsCode": "const session = $('Fetch Registration Session').first().json;\nconst regResponse = $('Parse Registration Response').first().json;\nconst triggerData = $('Execute Workflow Trigger').first().json;\n\nreturn [{\n  json: {\n    phoneNumber: triggerData.phoneNumber,\n    firstMessage: session?.firstMessage || triggerData.userInput,\n    collectedFields: JSON.stringify(regResponse.collectedData?.fields || {})\n  }\n}];"
       },
-      "id": "aecff011-0e5b-4ea0-a104-1ee26f0c1606",
+      "id": "0f6ae367-b849-4d39-89ba-79211afabc83",
       "name": "Prepare Session Data",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        368,
-        256
+        -64,
+        16
       ]
     },
     {
@@ -423,18 +422,18 @@
         "fields": "phoneNumber,firstMessage,collectedFields",
         "options": {}
       },
-      "id": "d28addc1-11e6-411a-95d2-5a26199d883e",
+      "id": "fa874944-dc4f-4a0e-b731-8ff8d333cc2b",
       "name": "Save Registration Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        592,
-        256
+        160,
+        16
       ],
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "Y72yvbsgwvQf7SQu",
+          "name": "MongoDB account"
         }
       }
     },
@@ -442,8 +441,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "bDqjxUvHKn4o0vQa",
-          "mode": "id"
+          "value": "5X0X0prlQ1i7cLAs",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/5X0X0prlQ1i7cLAs"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -546,39 +546,39 @@
           "waitForSubWorkflow": false
         }
       },
-      "id": "bbaaa051-32b5-4dab-837c-96448c196dfd",
+      "id": "4237d003-13e3-4695-bbb0-46b092616649",
       "name": "Log Registration Token (Ask)",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        816,
-        256
+        384,
+        16
       ]
     },
     {
       "parameters": {
         "jsCode": "const regResponse = $('Parse Registration Response').first().json;\nreturn [{ json: {\n  responseType: \"text\",\n  message: regResponse.message,\n  registrationComplete: false\n}}];"
       },
-      "id": "369106dc-0a98-40fc-836a-370f2bfc193b",
+      "id": "179b0bf7-4d8f-4256-a6f9-072809810093",
       "name": "Return Ask More",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1040,
-        256
+        608,
+        16
       ]
     },
     {
       "parameters": {
         "jsCode": "const regResponse = $('Parse Registration Response').first().json;\nconst orgDoc = $('Find Org by Phone').first().json;\nconst userIntent = orgDoc.userIntent;\n\nconst payload = {\n  intent: userIntent.name,\n  params: {\n    fields: regResponse.collectedData?.fields || {},\n    additionalInfo: {\n      ...(userIntent.additionalInfo || {}),\n      organizationId: orgDoc.parentOrganizationId\n    }\n  }\n};\n\nreturn [{ json: payload }];"
       },
-      "id": "e246f3ac-460f-4ccc-b910-9618c5009532",
+      "id": "762cb831-5601-4a7c-877d-fd858af24284",
       "name": "Prepare Save User Payload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        144,
-        64
+        -288,
+        -176
       ]
     },
     {
@@ -592,18 +592,18 @@
         "jsonBody": "={{ JSON.stringify($json) }}",
         "options": {}
       },
-      "id": "7a6b9279-945f-4b60-8e62-972f5d264518",
+      "id": "13b12555-80a8-4470-9f35-42ff072ae2e3",
       "name": "Call Save User API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        368,
-        64
+        -64,
+        -176
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "BCSZHMjz3Ult8yMA",
-          "name": "x-n8n-api-key"
+          "id": "Sdec288NlfXYh6zO",
+          "name": "x-api-key"
         }
       }
     },
@@ -611,13 +611,13 @@
       "parameters": {
         "jsCode": "const apiResponse = $input.first().json;\nconst orgDoc = $('Find Org by Phone').first().json;\nconst regResponse = $('Parse Registration Response').first().json;\nconst triggerData = $('Execute Workflow Trigger').first().json;\nconst fields = regResponse.collectedData?.fields || {};\nconst userIntent = orgDoc.userIntent;\nconst params = userIntent.parameters || [];\n\nfunction getFieldValue(internalName) {\n  const mapped = params.find(p => p.mapTo === internalName);\n  if (mapped && fields[mapped.name] !== undefined) {\n    return fields[mapped.name];\n  }\n  if (fields[internalName] !== undefined) {\n    return fields[internalName];\n  }\n  return '';\n}\n\nconst userId = apiResponse.userId || apiResponse._id || null;\nif (!userId) {\n  throw new Error('Save User API did not return a userId. Response: ' + JSON.stringify(apiResponse));\n}\n\nreturn [{\n  json: {\n    name: getFieldValue('name'),\n    phoneNumber: getFieldValue('phoneNumber') || triggerData.phoneNumber,\n    email: getFieldValue('email'),\n    userId: userId,\n    organizationId: orgDoc._id,\n    parentOrganizationId: orgDoc.parentOrganizationId\n  }\n}];"
       },
-      "id": "0eb76328-d814-4837-b6fa-33aef68f98bc",
+      "id": "2dbc795b-a80e-46c6-bc1e-b3720c225719",
       "name": "Build User Record",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        592,
-        64
+        160,
+        -176
       ]
     },
     {
@@ -627,18 +627,18 @@
         "fields": "name,phoneNumber,email,userId,organizationId,parentOrganizationId",
         "options": {}
       },
-      "id": "07728fdb-c339-4db3-885c-0e8bd8bb91ea",
+      "id": "cce387df-34e3-4e4c-aff8-4691ef06aeb7",
       "name": "Save New User",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        816,
-        64
+        384,
+        -176
       ],
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "Y72yvbsgwvQf7SQu",
+          "name": "MongoDB account"
         }
       }
     },
@@ -646,13 +646,13 @@
       "parameters": {
         "jsCode": "const session = $('Fetch Registration Session').first().json;\nconst triggerData = $('Execute Workflow Trigger').first().json;\nconst firstMessage = session?.firstMessage || triggerData.userInput || 'hi';\nreturn [{ json: { firstMessage } }];"
       },
-      "id": "6b9edb9f-e2a5-410a-a810-3cd6d0f50d01",
+      "id": "079976b5-57a9-4907-aedd-fa55469e4526",
       "name": "Extract First Message",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1040,
-        64
+        608,
+        -176
       ]
     },
     {
@@ -661,18 +661,18 @@
         "collection": "registration_sessions",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "8e3e40fd-6c4c-4ee7-a3bb-31d53d1ca906",
+      "id": "adf531d8-7fe9-4827-bf92-cacbb5bc3999",
       "name": "Delete Registration Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        1264,
-        64
+        832,
+        -176
       ],
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "Y72yvbsgwvQf7SQu",
+          "name": "MongoDB account"
         }
       }
     },
@@ -680,8 +680,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "bDqjxUvHKn4o0vQa",
-          "mode": "id"
+          "value": "5X0X0prlQ1i7cLAs",
+          "mode": "id",
+          "cachedResultUrl": "/workflow/5X0X0prlQ1i7cLAs"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -784,30 +785,29 @@
           "waitForSubWorkflow": false
         }
       },
-      "id": "ecd131f5-4573-4f95-8f8e-77eaf5f80402",
+      "id": "7cdd1d82-d91e-415e-8993-5b3d91bcc53d",
       "name": "Log Registration Token (Complete)",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1488,
-        64
+        1056,
+        -176
       ]
     },
     {
       "parameters": {
         "jsCode": "const firstMessage = $('Extract First Message').first().json.firstMessage;\nreturn [{ json: {\n  responseType: \"text\",\n  message: \"\",\n  registrationComplete: true,\n  firstMessage: firstMessage\n}}];"
       },
-      "id": "6a7aa6ff-8b5c-4e4c-a835-89d5d698af83",
+      "id": "f3877287-2a81-4a9a-9511-62ee63cb69f3",
       "name": "Return Complete",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1712,
-        64
+        1280,
+        -176
       ]
     }
   ],
-  "pinData": {},
   "connections": {
     "Execute Workflow Trigger": {
       "main": [
@@ -1091,14 +1091,9 @@
       ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "caa9067d-a4f6-41f4-bb64-0c66b45cdc7c",
+  "pinData": {},
   "meta": {
-    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
-  },
-  "id": "1A5eRkRPjqHuFrIs",
-  "tags": []
+    "templateCredsSetupCompleted": true,
+    "instanceId": "04a9c58622056ef55515df3e1f34eb7e9fbe2a87feeda0dcc951b2fb4871723b"
+  }
 }
