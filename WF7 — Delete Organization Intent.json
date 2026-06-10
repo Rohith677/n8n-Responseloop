@@ -1,0 +1,204 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "delete-organization-inent",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f9867235-643e-4da4-a15d-bf1b5ba7c0e4",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        368,
+        -64
+      ],
+      "webhookId": "delete-org-intent-webhook-001"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate the inbound x-n8n-api-key header\nconst apiKey = $input.first().json.headers?.['x-n8n-api-key'] || '';\nconst expected = 'ucsxrW9pLioAS43nod5tP353faVOe'; // N8N_API_KEY from backend .env\n\nif (!apiKey || apiKey !== expected) {\n  return [{ json: { valid: false, error: 'Unauthorized' } }];\n}\n\nreturn [{ json: { valid: true } }];"
+      },
+      "id": "d8bc656e-137f-4015-b3ce-9c8bc59c18e8",
+      "name": "Validate API Key",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "auth-check-condition-del",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "753af242-eb51-49c5-aeac-bb647153f4c3",
+      "name": "Is Authorized?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        816,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ error: 'Unauthorized' }) }}",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "70de2357-8c19-428f-968f-3ea37720f584",
+      "name": "Return Unauthorized",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the organizationIntentId to delete\nconst body = $('Webhook').first().json.body;\nconst organizationIntentId = body.organizationIntentId;\n\nif (!organizationIntentId) {\n  throw new Error('Missing required field: organizationIntentId');\n}\n\nreturn [{ json: { organizationIntentId } }];"
+      },
+      "id": "462bd222-6bf1-43af-9cbc-039a05fae933",
+      "name": "Extract Intent ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "collection": "organizations",
+        "query": "={{ JSON.stringify({ _id: $json.organizationIntentId }) }}"
+      },
+      "id": "0f416a1f-f783-45a8-91aa-b0ebf932c85d",
+      "name": "Delete Org Document",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        1264,
+        -64
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, deleted: $('Extract Intent ID').first().json.organizationIntentId }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "753d47d4-56bf-4f96-8c62-679ad0e72465",
+      "name": "Return Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        -64
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate API Key": {
+      "main": [
+        [
+          {
+            "node": "Is Authorized?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Authorized?": {
+      "main": [
+        [
+          {
+            "node": "Extract Intent ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Unauthorized",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Intent ID": {
+      "main": [
+        [
+          {
+            "node": "Delete Org Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Org Document": {
+      "main": [
+        [
+          {
+            "node": "Return Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
+  }
+}
