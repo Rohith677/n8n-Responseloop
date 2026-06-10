@@ -2,13 +2,13 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "a42700e2-2640-415a-a700-b0bf54564b4e",
+      "id": "f405db74-15d3-4c84-ba3a-8cf48ff5b4e8",
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        -352,
+        -48
       ]
     },
     {
@@ -21,13 +21,13 @@
         },
         "requestOptions": {}
       },
-      "id": "a785339a-2dc7-4de6-97d2-66c9938345fb",
+      "id": "935fcb5c-b9de-4d67-b3af-d0617ee40a7c",
       "name": "Get Execution Details",
       "type": "n8n-nodes-base.n8n",
       "typeVersion": 1,
       "position": [
-        240,
-        0
+        -112,
+        -48
       ],
       "credentials": {
         "n8nApi": {
@@ -40,13 +40,13 @@
       "parameters": {
         "jsCode": "const execData  = $input.first().json;\nconst inputData = $('Execute Workflow Trigger').first().json;\n\nconst source = inputData.source || 'support_agent';\n\n// Node name → token path mapping per source\nconst nodeTargets = {\n  support_agent:    'OpenAI Chat Model',       // token usage lives here\n  format_response:  'Format Webhook Response'  // unchanged\n};\n\nconst targetNode = nodeTargets[source];\n\nfunction extractTokens(runData, nodeName) {\n  if (!runData || !nodeName || !runData[nodeName]) {\n    return { promptTokens: 0, completionTokens: 0, totalTokens: 0 };\n  }\n\n  const steps = runData[nodeName];\n\n  for (const step of steps) {\n    // Check main output (usual for most nodes)\n    const outputs = step?.data?.main || [];\n    for (const output of outputs) {\n      for (const item of (output || [])) {\n        const json = item?.json || {};\n        const tokens = findTokenUsage(json);\n        if (tokens) return tokens;\n      }\n    }\n\n    // Check ai_languageModel output (used by OpenAI Chat Model node)\n    const aiOutputs = step?.data?.ai_languageModel || [];\n    for (const output of aiOutputs) {\n      for (const item of (output || [])) {\n        const json = item?.json || {};\n        const tokens = findTokenUsage(json);\n        if (tokens) return tokens;\n      }\n    }\n\n    // Add other output keys if necessary (e.g., ai_memory, ai_tool)\n  }\n\n  return { promptTokens: 0, completionTokens: 0, totalTokens: 0 };\n}\n\n// Helper to scan various possible token‑usage locations in a JSON object\nfunction findTokenUsage(json) {\n  // Direct OpenAI node → json.usage\n  if (json.usage) {\n    return {\n      promptTokens:     json.usage.prompt_tokens     || 0,\n      completionTokens: json.usage.completion_tokens || 0,\n      totalTokens:      json.usage.total_tokens      || 0\n    };\n  }\n\n  // Langchain agent node → json.response.tokenUsageEstimate\n  if (json.response?.tokenUsageEstimate) {\n    const u = json.response.tokenUsageEstimate;\n    return {\n      promptTokens:     u.promptTokens     || 0,\n      completionTokens: u.completionTokens || 0,\n      totalTokens:      u.totalTokens      || 0\n    };\n  }\n\n  // Langchain agent node → json.tokenUsageEstimate (flat)\n  if (json.tokenUsageEstimate) {\n    const u = json.tokenUsageEstimate;\n    return {\n      promptTokens:     u.promptTokens     || 0,\n      completionTokens: u.completionTokens || 0,\n      totalTokens:      u.totalTokens      || 0\n    };\n  }\n\n  return null;\n}\n\nconst runData    = execData?.data?.resultData?.runData || {};\nconst tokens     = extractTokens(runData, targetNode);\n\nreturn [{\n  json: {\n    userId:           inputData.userId          || null,\n    organizationId:   inputData.organizationId  || null,\n    source:           source,\n    model:            inputData.model           || null,\n    inputMessage:     inputData.inputMessage    || '',\n    parsedMessage:    inputData.parsedMessage   || '',\n    intent:           inputData.intent          || null,\n    action:           inputData.action          || null,\n    promptTokens:     tokens.promptTokens,\n    completionTokens: tokens.completionTokens,\n    totalTokens:      tokens.totalTokens,\n    executionId:      inputData.executionId     || null,\n    timestamp:        new Date().toISOString()\n  }\n}];"
       },
-      "id": "9c0d5361-ac82-457d-8632-ed3c72740b2d",
+      "id": "4d427a4b-981a-4a75-85c5-3ecd0966f59c",
       "name": "Extract Token Usage",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        480,
-        0
+        128,
+        -48
       ]
     },
     {
@@ -56,15 +56,20 @@
         "fields": "userId,organizationId,source,model,inputMessage,parsedMessage,intent,action,promptTokens,completionTokens,totalTokens,executionId,timestamp",
         "options": {}
       },
-      "id": "6c47260a-522a-43cb-bd56-4706690671f3",
+      "id": "786dafbf-a03a-4e75-85b1-80ed3891167f",
       "name": "Save Token Usage",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        720,
-        0
+        368,
+        -48
       ],
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "JD7umzuj40Yv7xDh",
+          "name": "MongoDB account"
+        }
+      }
     }
   ],
   "connections": {
@@ -105,6 +110,6 @@
   "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "04a9c58622056ef55515df3e1f34eb7e9fbe2a87feeda0dcc951b2fb4871723b"
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
   }
 }

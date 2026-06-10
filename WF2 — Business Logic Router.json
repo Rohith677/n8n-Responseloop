@@ -1,17 +1,16 @@
 {
-  "name": "WF2 — Business Logic Router",
   "nodes": [
     {
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "d3683a06-ed5e-44b6-bdd4-811838bdd945",
+      "id": "590b1a12-73b9-4615-8f2b-f41ed20c5683",
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1568,
-        400
+        -1616,
+        320
       ]
     },
     {
@@ -20,18 +19,18 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $json.phoneNumber }) }}"
       },
-      "id": "ac6feab2-f65b-4956-83d2-7b76388dbb61",
+      "id": "a5c1cf43-704a-4f59-be38-62f23597f4f4",
       "name": "Search User",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -1344,
-        400
+        -1392,
+        320
       ],
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "Y72yvbsgwvQf7SQu",
+          "id": "JD7umzuj40Yv7xDh",
           "name": "MongoDB account"
         }
       }
@@ -61,22 +60,22 @@
         },
         "options": {}
       },
-      "id": "e758a80f-0c58-4476-a520-c9d3348ba5cf",
+      "id": "5df12fed-85ba-491c-9300-3757545d248e",
       "name": "Is Registered?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -1120,
-        400
+        -1168,
+        320
       ]
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "iUKdpqbcjFArH18P",
+          "value": "WTI6a5eZiZGR7GMQ",
           "mode": "id",
-          "cachedResultUrl": "/workflow/iUKdpqbcjFArH18P"
+          "cachedResultUrl": "/workflow/WTI6a5eZiZGR7GMQ"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -127,13 +126,13 @@
         },
         "options": {}
       },
-      "id": "11624b0c-0dc3-4aba-89b0-7997188d4aa3",
+      "id": "5352344d-ac5f-442b-b461-8a40e3e90a17",
       "name": "Call User Creation",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -896,
-        496
+        -944,
+        416
       ]
     },
     {
@@ -161,13 +160,13 @@
         },
         "options": {}
       },
-      "id": "0b8cc94b-21c5-43ec-9d45-b537b305d1cb",
+      "id": "29860380-b1db-459a-8576-f2855b7a721f",
       "name": "Is Registration Complete?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -672,
-        496
+        -720,
+        416
       ]
     },
     {
@@ -190,13 +189,13 @@
         },
         "options": {}
       },
-      "id": "c231a536-b016-43d6-891e-98490080d94d",
+      "id": "1bcb2f4b-39f9-46a3-89f8-18b4eb5e8852",
       "name": "Return Registration Message",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -448,
-        592
+        -496,
+        512
       ]
     },
     {
@@ -205,18 +204,18 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "9bd44c3d-8216-4248-9f7f-2ec634f25449",
+      "id": "40c10e91-0d53-42cd-b4df-cef07a4b4e81",
       "name": "Search User Again",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -448,
-        400
+        -496,
+        320
       ],
       "credentials": {
         "mongoDb": {
-          "id": "Y72yvbsgwvQf7SQu",
-          "name": "MongoDB account"
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
         }
       }
     },
@@ -224,9 +223,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "TTuvTuyMcqi1Gbc5",
+          "value": "Rj0pUxHDOhwuC5tX",
           "mode": "id",
-          "cachedResultUrl": "/workflow/TTuvTuyMcqi1Gbc5"
+          "cachedResultUrl": "/workflow/Rj0pUxHDOhwuC5tX"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -327,26 +326,26 @@
         },
         "options": {}
       },
-      "id": "7a6af087-2962-4b5b-b6b0-0e9f13d718a9",
+      "id": "b5252d80-c94e-40ef-b37f-f193d2c7d1b8",
       "name": "Call Intent After Reg",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -224,
-        400
+        -272,
+        320
       ]
     },
     {
       "parameters": {
         "jsCode": "const userMessage = $('Execute Workflow Trigger').first().json.userInput || \"\";\nconst prompt = 'Is this message a GREETING (hi, hello, hey, start, menu, restart, etc)?\\nMessage: \"' + userMessage + '\"\\nRespond JSON only: {\"isGreeting\": true_or_false}';\nreturn [{ json: { prompt } }];"
       },
-      "id": "330dbbc1-498e-429d-a314-d48b076f0508",
+      "id": "4904cacf-4332-4604-b953-a10b3941e75a",
       "name": "Build Greeting Check",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -896,
-        208
+        -944,
+        128
       ]
     },
     {
@@ -370,17 +369,17 @@
         },
         "requestOptions": {}
       },
-      "id": "c3302b94-6ce9-4c3c-a934-33d09445c831",
+      "id": "59cc76a7-6be6-4a24-95e9-e17bff13169a",
       "name": "Greeting Check LLM",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1,
       "position": [
-        -672,
-        208
+        -720,
+        128
       ],
       "credentials": {
         "openAiApi": {
-          "id": "BhKHP5ePofPdJtCW",
+          "id": "uXr0nmkLxemPDRRi",
           "name": "aami-dev"
         }
       }
@@ -389,13 +388,13 @@
       "parameters": {
         "jsCode": "const raw = $input.first().json?.choices?.[0]?.message?.content || '{}';\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\ntry { return [{ json: JSON.parse(cleaned) }]; } catch(e) { return [{ json: { isGreeting: false } }]; }"
       },
-      "id": "60ccd9a2-c683-4636-8ac6-8845891c2f79",
+      "id": "68d84038-a921-43a4-93f7-37b9baeb077c",
       "name": "Parse Greeting Check",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -448,
-        208
+        -496,
+        128
       ]
     },
     {
@@ -423,13 +422,13 @@
         },
         "options": {}
       },
-      "id": "eb5c2cb1-3fae-4f1b-94ee-8db100f0def0",
+      "id": "cf904742-d83b-4590-9fef-82a987e6133e",
       "name": "Is Greeting?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -224,
-        208
+        -272,
+        128
       ]
     },
     {
@@ -438,18 +437,18 @@
         "collection": "intent_sessions",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "320bea13-fac7-452c-b4c5-8280ba682036",
+      "id": "f5b6e34b-eca1-40cf-9329-0ba4b2664c90",
       "name": "Delete Sessions on Greeting",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        0,
-        0
+        -48,
+        -80
       ],
       "credentials": {
         "mongoDb": {
-          "id": "Y72yvbsgwvQf7SQu",
-          "name": "MongoDB account"
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
         }
       }
     },
@@ -459,18 +458,18 @@
         "collection": "options_cache",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "d9b9348a-18b2-44f4-a3ab-56f58cd6966c",
+      "id": "40f6332a-4417-44b3-811d-5cdd6dc24b38",
       "name": "Delete Cache on Greeting",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        224,
-        0
+        176,
+        -80
       ],
       "credentials": {
         "mongoDb": {
-          "id": "Y72yvbsgwvQf7SQu",
-          "name": "MongoDB account"
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
         }
       }
     },
@@ -478,9 +477,9 @@
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "TTuvTuyMcqi1Gbc5",
+          "value": "Rj0pUxHDOhwuC5tX",
           "mode": "id",
-          "cachedResultUrl": "/workflow/TTuvTuyMcqi1Gbc5"
+          "cachedResultUrl": "/workflow/Rj0pUxHDOhwuC5tX"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -581,13 +580,13 @@
         },
         "options": {}
       },
-      "id": "b72dc416-7cda-4197-a919-adf38ec5125e",
+      "id": "d959d782-3738-41c7-a667-edb30ab18b76",
       "name": "Call Intent Fresh",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        448,
-        0
+        400,
+        -80
       ]
     },
     {
@@ -596,19 +595,19 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "0f726ef8-4d49-4f0f-87c2-23e309d4a700",
+      "id": "e89cc07a-892a-40d3-bfa3-14732afb9cca",
       "name": "Fetch Intent Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        0,
-        320
+        -48,
+        240
       ],
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "Y72yvbsgwvQf7SQu",
-          "name": "MongoDB account"
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
         }
       }
     },
@@ -637,13 +636,13 @@
         },
         "options": {}
       },
-      "id": "caa3b3ee-1a42-4007-8d17-806a8458df57",
+      "id": "7792d81c-4203-4ff0-94d6-5023072f9c77",
       "name": "Has Active Session?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        224,
-        320
+        176,
+        240
       ]
     },
     {
@@ -704,22 +703,22 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "1e11521d-8957-4945-9e09-8308125f915c",
+      "id": "4de81e2b-b7fc-4b24-a406-d4e08427e7d7",
       "name": "Check Phase",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        448,
-        192
+        400,
+        112
       ]
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "FGplPPW7wLW8liJ1",
+          "value": "cWs9m9UCqdrlsXjP",
           "mode": "id",
-          "cachedResultUrl": "/workflow/FGplPPW7wLW8liJ1"
+          "cachedResultUrl": "/workflow/cWs9m9UCqdrlsXjP"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -780,22 +779,22 @@
         },
         "options": {}
       },
-      "id": "051a7312-65e9-4e37-87b2-ffce8f09ca06",
+      "id": "4920c32b-590d-46d4-8a5c-f1849a8e21ba",
       "name": "Call Repeat Engine",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        672,
-        112
+        624,
+        32
       ]
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "TTuvTuyMcqi1Gbc5",
+          "value": "Rj0pUxHDOhwuC5tX",
           "mode": "id",
-          "cachedResultUrl": "/workflow/TTuvTuyMcqi1Gbc5"
+          "cachedResultUrl": "/workflow/Rj0pUxHDOhwuC5tX"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -896,22 +895,22 @@
         },
         "options": {}
       },
-      "id": "6896144e-edf0-4219-a1e4-60669a8baa5d",
+      "id": "b174691d-2391-4b62-8cfc-ef2268f1662f",
       "name": "Call Intent With Session",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        672,
-        304
+        624,
+        224
       ]
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "TTuvTuyMcqi1Gbc5",
+          "value": "Rj0pUxHDOhwuC5tX",
           "mode": "id",
-          "cachedResultUrl": "/workflow/TTuvTuyMcqi1Gbc5"
+          "cachedResultUrl": "/workflow/Rj0pUxHDOhwuC5tX"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -1012,13 +1011,13 @@
         },
         "options": {}
       },
-      "id": "b9a9dacd-989d-4f6e-923d-083f503bcf50",
+      "id": "85c3a450-b0df-48df-89f0-f35414428b1e",
       "name": "Call Intent Normal",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        448,
-        416
+        400,
+        336
       ]
     },
     {
@@ -1049,19 +1048,19 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        896,
-        112
+        848,
+        32
       ],
-      "id": "fa352b8b-eea6-429c-a62d-583b4e62151d",
+      "id": "a818367f-5b88-4e2d-8057-0014f442534d",
       "name": "Is Repeat Done?"
     },
     {
       "parameters": {
         "workflowId": {
           "__rl": true,
-          "value": "TTuvTuyMcqi1Gbc5",
+          "value": "Rj0pUxHDOhwuC5tX",
           "mode": "id",
-          "cachedResultUrl": "/workflow/TTuvTuyMcqi1Gbc5"
+          "cachedResultUrl": "/workflow/Rj0pUxHDOhwuC5tX"
         },
         "workflowInputs": {
           "mappingMode": "defineBelow",
@@ -1162,13 +1161,13 @@
         },
         "options": {}
       },
-      "id": "f4695b95-64e5-459e-b640-0d33e0903453",
+      "id": "4290005c-e4c1-442b-9ba5-ad9c876760da",
       "name": "Call Intent Post Repeat",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1120,
-        16
+        1072,
+        -64
       ]
     },
     {
@@ -1178,14 +1177,13 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1120,
-        208
+        1072,
+        128
       ],
-      "id": "1ec8ade4-897c-4194-8d5c-d963979a718e",
+      "id": "52d8511a-d222-4f90-bcb7-999724af20fc",
       "name": "Return Repeat Response"
     }
   ],
-  "pinData": {},
   "connections": {
     "Execute Workflow Trigger": {
       "main": [
@@ -1417,17 +1415,9 @@
       ]
     }
   },
-  "active": true,
-  "settings": {
-    "executionOrder": "v1",
-    "binaryMode": "separate"
-  },
-  "versionId": "c9bc1654-85a6-4e34-aece-3f9d29044c82",
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "04a9c58622056ef55515df3e1f34eb7e9fbe2a87feeda0dcc951b2fb4871723b"
-  },
-  "nodeGroups": [],
-  "id": "dnZEj0RKsfVDPjKa",
-  "tags": []
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
+  }
 }

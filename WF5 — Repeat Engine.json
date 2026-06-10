@@ -4,13 +4,13 @@
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "4a99a16d-7890-4d80-8fd6-76b4ba3b6684",
+      "id": "0caa9263-3bf4-4b8d-9e1b-c4ce78ba3a0e",
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
         -1120,
-        144
+        160
       ]
     },
     {
@@ -19,18 +19,18 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $json.phoneNumber }) }}"
       },
-      "id": "6a6a27cb-057c-4fed-8c5d-164823063730",
+      "id": "2c99bf0b-8b86-4259-9958-f2c1c20e66b2",
       "name": "Fetch Intent Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         -896,
-        144
+        160
       ],
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "Y72yvbsgwvQf7SQu",
+          "id": "JD7umzuj40Yv7xDh",
           "name": "MongoDB account"
         }
       }
@@ -41,28 +41,33 @@
         "options": {},
         "query": "={{ JSON.stringify({ _id: $('Fetch Intent Session').first().json.organizationId, parentOrganizationId: $('Fetch Intent Session').first().json.parentOrganizationId }) }}"
       },
-      "id": "d0238f37-9f59-4912-ae01-e926b8ec1b71",
+      "id": "41a29659-38f1-4861-aed3-cd3ed1a4835c",
       "name": "Fetch Org Doc",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         -672,
-        144
+        160
       ],
       "alwaysOutputData": true,
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     },
     {
       "parameters": {
         "jsCode": "const session = $('Fetch Intent Session').first().json;\nconst orgDoc = $('Fetch Org Doc').first().json;\nconst trigger = $('Execute Workflow Trigger').first().json;\nconst messageSource = trigger.messageSource;\nconst userInput = trigger.userInput;\n\nconst intent = (orgDoc.intents || []).find(i => i.name === session.intentName);\nif (!intent) throw new Error('Intent not found: ' + session.intentName);\n\nconst repeatConfig = intent.repeatSections?.[session.sectionName];\nif (!repeatConfig) throw new Error('Repeat section not found: ' + session.sectionName);\n\nconst subParams = repeatConfig.parameters || [];\nlet completedItems, currentItem, genQuestions;\ntry { completedItems = typeof session.completedItems === 'string' ? JSON.parse(session.completedItems) : (session.completedItems || []); } catch(e) { completedItems = []; }\ntry { currentItem = typeof session.currentItem === 'string' ? JSON.parse(session.currentItem) : (session.currentItem || {}); } catch(e) { currentItem = {}; }\ntry { genQuestions = session.generatedQuestions ? (typeof session.generatedQuestions === 'string' ? JSON.parse(session.generatedQuestions) : session.generatedQuestions) : null; } catch(e) { genQuestions = null; }\n\nconst fieldIndex = session.currentFieldIndex || 0;\nconst cycle = session.currentCycle || 1;\n\n// ENTERING REPEAT — first time (from WF4)\nif (messageSource === 'entering_repeat') {\n  return [{ json: {\n    action: genQuestions ? 'ask_next_field' : 'generate_questions',\n    nextField: subParams[0],\n    nextFieldIndex: 0,\n    updatedSession: { ...session, currentFieldIndex: 0, currentItem: '{}', currentCycle: 1 },\n    subParams, repeatConfig, genQuestions, completedItems, currentItem: {}\n  }}];\n}\n\n// REPEAT YES — add another\nif (messageSource === 'repeat_yes') {\n  completedItems.push(currentItem);\n  return [{ json: {\n    action: 'ask_next_field',\n    nextField: subParams[0],\n    nextFieldIndex: 0,\n    updatedSession: { ...session, currentCycle: cycle + 1, currentFieldIndex: 0, currentItem: '{}', completedItems: JSON.stringify(completedItems) },\n    subParams, repeatConfig, genQuestions, completedItems, currentItem: {}\n  }}];\n}\n\n// REPEAT NO — done collecting\nif (messageSource === 'repeat_no') {\n  completedItems.push(currentItem);\n  // Merge pre-repeat fields with repeat array\n  let preFields = {};\n  try { preFields = typeof session.collectedFields === 'string' ? JSON.parse(session.collectedFields) : (session.collectedFields || {}); } catch(e) {}\n  preFields[session.sectionName] = completedItems;\n  return [{ json: {\n    action: 'repeat_complete',\n    mergedCollectedFields: JSON.stringify(preFields),\n    itemCount: completedItems.length,\n    updatedSession: { ...session, phase: 'collecting', collectedFields: JSON.stringify(preFields), completedItems: JSON.stringify(completedItems), currentItem: '{}' }\n  }}];\n}\n\n// SAFETY: if fieldIndex past all sub-fields, re-send continue\nif (fieldIndex >= subParams.length) {\n  return [{ json: {\n    action: 'send_continue',\n    updatedSession: { ...session, currentItem: JSON.stringify(currentItem), currentFieldIndex: fieldIndex },\n    repeatConfig, genQuestions, completedItems, currentItem\n  }}];\n}\n\n// USER ANSWERED A FIELD\nconst currentField = subParams[fieldIndex];\ncurrentItem[currentField.name] = userInput;\nconst nextIndex = fieldIndex + 1;\n\nif (nextIndex >= subParams.length) {\n  // All sub-fields done for this cycle\n  return [{ json: {\n    action: 'send_continue',\n    updatedSession: { ...session, currentItem: JSON.stringify(currentItem), currentFieldIndex: nextIndex },\n    repeatConfig, genQuestions, completedItems, currentItem\n  }}];\n}\n\n// More sub-fields\nreturn [{ json: {\n  action: 'ask_next_field',\n  nextField: subParams[nextIndex],\n  nextFieldIndex: nextIndex,\n  updatedSession: { ...session, currentFieldIndex: nextIndex, currentItem: JSON.stringify(currentItem) },\n  subParams, repeatConfig, genQuestions, completedItems, currentItem\n}}];"
       },
-      "id": "5f291341-0072-4215-9296-9d8e9aba2f3b",
+      "id": "28d0c5dc-d555-4211-bcb9-f5d95e883511",
       "name": "Repeat Logic",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         -448,
-        144
+        160
       ]
     },
     {
@@ -89,13 +94,13 @@
         },
         "options": {}
       },
-      "id": "3d4dcadc-e3ca-4233-b33b-4219d256bd00",
+      "id": "8ea389f8-6e11-4a54-9189-813c34c6487e",
       "name": "Is Complete?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
         -224,
-        144
+        160
       ]
     },
     {
@@ -104,27 +109,32 @@
         "collection": "intent_sessions",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "98ab4e29-9113-409e-ac8a-d20d14d81b75",
+      "id": "7f00ff18-dd84-4cb2-b1bb-ae92e75ae877",
       "name": "Delete Session Complete",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         0,
-        -16
+        0
       ],
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     },
     {
       "parameters": {
         "jsCode": "const data = $('Repeat Logic').first().json;\nconst s = data.updatedSession;\nreturn [{ json: {\n  userId: s.userId, phoneNumber: s.phoneNumber, intentName: s.intentName,\n  organizationId: s.organizationId, parentOrganizationId: s.parentOrganizationId,\n  phase: 'collecting', currentMainIndex: s.currentMainIndex,\n  sectionName: s.sectionName, currentCycle: s.currentCycle, currentFieldIndex: 0,\n  completedItems: typeof s.completedItems === 'string' ? s.completedItems : JSON.stringify(s.completedItems || []),\n  currentItem: '{}',\n  collectedFields: data.mergedCollectedFields,\n  generatedQuestions: typeof s.generatedQuestions === 'string' ? s.generatedQuestions : JSON.stringify(s.generatedQuestions || {}),\n  createdAt: s.createdAt || new Date().toISOString()\n} }];"
       },
-      "id": "be12b280-f5c0-444d-b89c-8df15d40a0b3",
+      "id": "e07a5e1a-25b7-4bbd-ac61-46ddc301afb8",
       "name": "Prep Complete Insert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         224,
-        -16
+        0
       ]
     },
     {
@@ -134,15 +144,20 @@
         "fields": "userId,phoneNumber,intentName,organizationId,parentOrganizationId,phase,currentMainIndex,sectionName,currentCycle,currentFieldIndex,completedItems,currentItem,collectedFields,generatedQuestions,createdAt",
         "options": {}
       },
-      "id": "615299e2-e387-4992-8732-3147841be836",
+      "id": "e068deae-bb32-4258-93a9-418302a9ca26",
       "name": "Insert Complete Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         448,
-        -16
+        0
       ],
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     },
     {
       "parameters": {
@@ -150,27 +165,32 @@
         "collection": "options_cache",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "66c22757-97bf-453b-8723-ea7ca6ca5dc1",
+      "id": "f02005b1-13d9-4021-a0a4-6f532802c504",
       "name": "Delete Options Cache Complete",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         672,
-        -16
+        0
       ],
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     },
     {
       "parameters": {
         "jsCode": "const data = $('Repeat Logic').first().json;\nreturn [{ json: { \n  responseType: '__repeat_done__', \n  repeatComplete: true,\n  message: '' \n} }];"
       },
-      "id": "37bf2259-f98a-436b-810d-9517c92ea7cc",
+      "id": "22c17bd5-4df6-4c3f-be62-183ee5bd66d4",
       "name": "Return Complete Ack",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         896,
-        -16
+        0
       ]
     },
     {
@@ -197,26 +217,26 @@
         },
         "options": {}
       },
-      "id": "428222c5-1eea-4a0f-b554-bd76db96b7b8",
+      "id": "9ae5c9de-ffe7-4418-aeb6-f1e2f7535bb2",
       "name": "Needs Question Gen?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
         0,
-        288
+        304
       ]
     },
     {
       "parameters": {
         "jsCode": "const data = $('Repeat Logic').first().json;\nconst subParams = data.subParams || [];\nconst fields = subParams.map(p => 'Field: \"' + p.name + '\" | Description: \"' + (p.description || p.name) + '\"').join('\\n');\nreturn [{ json: { prompt: 'Generate a short, friendly WhatsApp question for each field below. One natural sentence per field. Do NOT start with \"Ask\".\\n\\n' + fields + '\\n\\nReturn JSON only: {\"fieldName\": \"question\", ...}' } }];"
       },
-      "id": "202ce7bc-b90c-40d8-80f2-15672b13bd57",
+      "id": "1205cd29-ba8f-4a01-b69c-467d724cbca6",
       "name": "Build Gen Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         224,
-        160
+        176
       ]
     },
     {
@@ -240,17 +260,17 @@
         },
         "requestOptions": {}
       },
-      "id": "838c86b4-aadd-4905-9737-274a2bc7bf12",
+      "id": "1560fb11-eb1f-43e2-94f9-eeef1320fa65",
       "name": "Generate Questions LLM",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1,
       "position": [
         448,
-        160
+        176
       ],
       "credentials": {
         "openAiApi": {
-          "id": "BhKHP5ePofPdJtCW",
+          "id": "uXr0nmkLxemPDRRi",
           "name": "aami-dev"
         }
       }
@@ -259,13 +279,13 @@
       "parameters": {
         "jsCode": "const raw = $input.first().json?.choices?.[0]?.message?.content || '{}';\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet questions;\ntry { questions = JSON.parse(cleaned); } catch(e) { questions = {}; }\nconst data = $('Repeat Logic').first().json;\nconst session = data.updatedSession;\nsession.generatedQuestions = JSON.stringify(questions);\nreturn [{ json: { ...data, genQuestions: questions, updatedSession: session } }];"
       },
-      "id": "45641f2f-80de-4205-b57a-3b3d72dd1861",
+      "id": "e1dda751-1691-43a9-b3d9-33196d7a50b4",
       "name": "Parse Questions",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         672,
-        160
+        176
       ]
     },
     {
@@ -274,27 +294,32 @@
         "collection": "intent_sessions",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "4a4d7e36-46bc-4f96-b6b8-b20b11180962",
+      "id": "9ee6dc50-bfd8-4dc5-9f7d-7d46d6cb74d2",
       "name": "Delete Old Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         928,
-        304
+        320
       ],
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     },
     {
       "parameters": {
         "jsCode": "// Get data from either Question Gen path or direct path\nlet data;\ntry { data = $('Parse Questions').first().json; } catch(e) { data = $('Repeat Logic').first().json; }\nconst s = data.updatedSession;\nreturn [{ json: {\n  userId: s.userId, phoneNumber: s.phoneNumber, intentName: s.intentName,\n  organizationId: s.organizationId, parentOrganizationId: s.parentOrganizationId,\n  phase: s.phase || 'repeat', currentMainIndex: s.currentMainIndex,\n  sectionName: s.sectionName, currentCycle: s.currentCycle, currentFieldIndex: s.currentFieldIndex,\n  completedItems: typeof s.completedItems === 'string' ? s.completedItems : JSON.stringify(s.completedItems || []),\n  currentItem: typeof s.currentItem === 'string' ? s.currentItem : JSON.stringify(s.currentItem || {}),\n  collectedFields: typeof s.collectedFields === 'string' ? s.collectedFields : JSON.stringify(s.collectedFields || {}),\n  generatedQuestions: typeof s.generatedQuestions === 'string' ? s.generatedQuestions : JSON.stringify(s.generatedQuestions || {}),\n  createdAt: s.createdAt || new Date().toISOString()\n} }];"
       },
-      "id": "58f89713-833b-45c7-af47-82e2b5e6d0df",
+      "id": "34cc2e58-b413-4c8b-a778-44579a110194",
       "name": "Prepare Session Insert",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         1136,
-        288
+        304
       ]
     },
     {
@@ -304,15 +329,20 @@
         "fields": "userId,phoneNumber,intentName,organizationId,parentOrganizationId,phase,currentMainIndex,sectionName,currentCycle,currentFieldIndex,completedItems,currentItem,collectedFields,generatedQuestions,createdAt",
         "options": {}
       },
-      "id": "0e1981cd-b64e-4832-a717-ee58db03b512",
+      "id": "fa6e643a-b633-481c-890b-354be2fb12c5",
       "name": "Save Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         1360,
-        288
+        304
       ],
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     },
     {
       "parameters": {
@@ -338,39 +368,39 @@
         },
         "options": {}
       },
-      "id": "256f0df6-6e5b-4286-a1c9-6994bb7f3768",
+      "id": "c91b8ecd-f925-4286-9cad-17e2e770d170",
       "name": "Is Continue?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
         1584,
-        288
+        304
       ]
     },
     {
       "parameters": {
         "jsCode": "const data = $('Repeat Logic').first().json;\nconst config = data.repeatConfig;\nconst phoneNumber = $('Execute Workflow Trigger').first().json.phoneNumber;\nconst opts = config.continueOptions || ['Yes', 'No'];\nconst payload = {\n  messaging_product: \"whatsapp\", to: phoneNumber, type: \"interactive\",\n  interactive: { type: \"button\", body: { text: config.continuePrompt || \"Would you like to add another?\" },\n    action: { buttons: [\n      { type: \"reply\", reply: { id: \"__repeat_yes__\", title: opts[0] || \"Yes\" } },\n      { type: \"reply\", reply: { id: \"__repeat_no__\", title: opts[1] || \"No\" } }\n    ]}}\n};\nreturn [{ json: { responseType: \"interactive\", message: config.continuePrompt, interactivePayload: payload } }];"
       },
-      "id": "813b6d6a-9e64-4001-a3cb-7b0cd251a0be",
+      "id": "e1700d6f-9143-4280-8d75-7ea4e25fe3fb",
       "name": "Build Continue Buttons",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         1792,
-        176
+        192
       ]
     },
     {
       "parameters": {
         "jsCode": "let data;\ntry { data = $('Parse Questions').first().json; } catch(e) { data = $('Repeat Logic').first().json; }\nconst field = data.nextField;\nconst questions = data.genQuestions || {};\nconst question = questions[field.name] || field.description || 'Please provide ' + field.name;\nconst phoneNumber = $('Execute Workflow Trigger').first().json.phoneNumber;\nconst orgDoc = $('Fetch Org Doc').first().json;\nconst intent = (orgDoc.intents || []).find(i => i.name === $('Fetch Intent Session').first().json.intentName);\nconst repeatConfig = intent?.repeatSections?.[$('Fetch Intent Session').first().json.sectionName];\nconst param = (repeatConfig?.parameters || []).find(p => p.name === field.name);\n\nif (!param || field.type === 'text') {\n  return [{ json: { responseType: \"text\", message: question, needsAPI: false } }];\n}\n\nconst optionsSource = param.optionsSource || 'static';\n\nif (field.type === 'list_buttons' && optionsSource === 'api' && param.optionsConfig) {\n  return [{ json: { responseType: \"__needs_api__\", message: question, needsAPI: true, optionsConfig: param.optionsConfig, fieldName: field.name, intentName: intent.name } }];\n}\n\nconst opts = (param.options || []).map((o, i) => ({ id: typeof o === 'string' ? o : (o.id || String(i)), title: typeof o === 'string' ? o : (o.title || '') }));\n\nif (field.type === 'options' && opts.length <= 3) {\n  const btns = opts.map(o => ({ type: \"reply\", reply: { id: o.id, title: o.title.substring(0, 20) } }));\n  return [{ json: { responseType: \"interactive\", message: question, needsAPI: false, interactivePayload: { messaging_product: \"whatsapp\", to: phoneNumber, type: \"interactive\", interactive: { type: \"button\", body: { text: question }, action: { buttons: btns } } } } }];\n}\n\nconst PAGE_SIZE = 9; const needsP = opts.length > 10;\nconst rows = (needsP ? opts.slice(0, PAGE_SIZE) : opts).map(o => ({ id: o.id, title: o.title.substring(0, 24) }));\nif (needsP) rows.push({ id: '__page__' + intent.name + '__' + field.name + '__2', title: '\\u25B6 More options' });\nreturn [{ json: { responseType: \"interactive\", message: question, needsAPI: false, interactivePayload: { messaging_product: \"whatsapp\", recipient_type: \"individual\", to: phoneNumber, type: \"interactive\", interactive: { type: \"list\", body: { text: question }, action: { button: \"Select an option\", sections: [{ rows }] } } } } }];"
       },
-      "id": "e95e3c34-fa43-436e-9f58-858847f18e0c",
+      "id": "2147f77f-8e13-42c0-8e16-10fe49683699",
       "name": "Build Field Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         1792,
-        336
+        352
       ]
     },
     {
@@ -398,39 +428,39 @@
         },
         "options": {}
       },
-      "id": "75fd87d1-13fd-4979-b9c0-e67694615627",
+      "id": "e349c971-5fb9-4fdb-80d5-86a1613b9826",
       "name": "Field Needs API?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
         2016,
-        336
+        352
       ]
     },
     {
       "parameters": {
         "jsCode": "const r = $('Build Field Response').first().json;\nreturn [{ json: { responseType: r.responseType, message: r.message, interactivePayload: r.interactivePayload || undefined } }];"
       },
-      "id": "41022ea7-0a19-47ef-b4a5-ed3f60666978",
+      "id": "cc81718f-1d9f-4480-9a74-64d17bcc3a34",
       "name": "Return Field Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2240,
-        432
+        448
       ]
     },
     {
       "parameters": {
         "jsCode": "const d = $input.first().json;\nconst c = d.optionsConfig;\nconst orgDoc = $('Fetch Org Doc').first().json;\nreturn [{ json: { url: c.url, method: c.method||'GET', headers: c.headers||{}, body: {...(c.body||{}), parentOrganizationId: orgDoc.parentOrganizationId}, mapping: c.mapping||{id:'id',title:'title'}, dataPath: c.dataPath||null, message: d.message, intentName: d.intentName, fieldName: d.fieldName } }];"
       },
-      "id": "b85b1a8c-67f9-4907-980a-12cbb19927e3",
+      "id": "4005bf92-e8fe-4681-b472-b14161f65a79",
       "name": "Prep Repeat API",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2240,
-        240
+        256
       ]
     },
     {
@@ -451,39 +481,39 @@
         "jsonBody": "={{ JSON.stringify($json.body) }}",
         "options": {}
       },
-      "id": "b86e0fb0-71a7-46d5-8a32-338e000e3e7c",
+      "id": "899485c4-3149-41ce-b8f8-dbef2e9d1691",
       "name": "Fetch Repeat API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
         2464,
-        240
+        256
       ]
     },
     {
       "parameters": {
         "jsCode": "const api = $input.first().json;\nconst p = $('Prep Repeat API').first().json;\nlet raw = api; if(p.dataPath){for(const k of p.dataPath.split('.'))raw=raw?.[k];}\nif(!Array.isArray(raw)) raw = [];\nconst opts = raw.map(i => ({ id: String(i[p.mapping.id]||''), title: String(i[p.mapping.title]||'') }));\nconst ph = $('Execute Workflow Trigger').first().json.phoneNumber;\nreturn [{ json: { phoneNumber: ph, intentName: p.intentName, fieldName: p.fieldName, options: JSON.stringify(opts), totalCount: opts.length, createdAt: new Date().toISOString(), message: p.message, resolvedOptions: opts } }];"
       },
-      "id": "5bfd512c-b3ca-4487-862e-046e7fe01e76",
+      "id": "858637e6-4d47-41dc-9553-a7abeaff14d2",
       "name": "Map Repeat API",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2688,
-        240
+        256
       ]
     },
     {
       "parameters": {
         "jsCode": "const d=$input.first().json;return [{json:{phoneNumber:d.phoneNumber,intentName:d.intentName,fieldName:d.fieldName,options:d.options,totalCount:d.totalCount,createdAt:d.createdAt}}];"
       },
-      "id": "4b87d8b7-4b6b-49a2-a0ca-8cc76433b1e9",
+      "id": "475795a6-a721-4310-a97b-60b2c32e6eb3",
       "name": "Prep Repeat Cache",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2912,
-        240
+        256
       ]
     },
     {
@@ -493,40 +523,45 @@
         "fields": "phoneNumber,intentName,fieldName,options,totalCount,createdAt",
         "options": {}
       },
-      "id": "bec00573-4c27-4266-bd89-1ee3549950da",
+      "id": "4020af2e-879d-4492-9abc-986a39115e29",
       "name": "Save Repeat Cache",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
         3136,
-        240
+        256
       ],
-      "credentials": {}
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     },
     {
       "parameters": {
         "jsCode": "const d = $('Map Repeat API').first().json;\nconst opts = d.resolvedOptions || []; const ph = d.phoneNumber;\nconst p = $('Prep Repeat API').first().json;\nif(!opts.length) return [{ json: { responseType: \"text\", message: d.message } }];\nconst PS=9; const needsP=opts.length>10;\nconst rows = (needsP?opts.slice(0,PS):opts).map(o=>({id:o.id,title:o.title.substring(0,24)}));\nif(needsP) rows.push({id:'__page__'+p.intentName+'__'+p.fieldName+'__2',title:'\\u25B6 More options'});\nreturn [{ json: { responseType: \"interactive\", message: d.message, interactivePayload: { messaging_product:\"whatsapp\", recipient_type:\"individual\", to:ph, type:\"interactive\", interactive:{type:\"list\",body:{text:d.message},action:{button:\"Select an option\",sections:[{rows}]}}} } }];"
       },
-      "id": "38cebdb3-2884-45b1-ad55-71f8bc50df3c",
+      "id": "91ae7af3-3ac7-4485-97ca-c2fffd7ba6bc",
       "name": "Build Repeat API List",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         3360,
-        240
+        256
       ]
     },
     {
       "parameters": {
         "jsCode": "return [{ json: $('Build Repeat API List').first().json }];"
       },
-      "id": "202f14c9-0dd9-43cd-a7b9-9ed975fad9e0",
+      "id": "c8dbb93c-6c9e-440f-8cc8-a9860d18faa8",
       "name": "Return Repeat API Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         3584,
-        240
+        256
       ]
     }
   ],
@@ -838,6 +873,6 @@
   "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "04a9c58622056ef55515df3e1f34eb7e9fbe2a87feeda0dcc951b2fb4871723b"
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
   }
 }
