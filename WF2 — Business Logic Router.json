@@ -30,8 +30,8 @@
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "JD7umzuj40Yv7xDh",
-          "name": "MongoDB account"
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
         }
       }
     },
