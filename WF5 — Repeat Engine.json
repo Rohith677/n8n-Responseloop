@@ -37,9 +37,9 @@
     },
     {
       "parameters": {
-        "collection": "organizations",
+        "collection": "organization_intents",
         "options": {},
-        "query": "={{ JSON.stringify({ _id: $('Fetch Intent Session').first().json.organizationId, parentOrganizationId: $('Fetch Intent Session').first().json.parentOrganizationId }) }}"
+        "query": "={{ JSON.stringify({ _id: $('Fetch Intent Session').first().json.organizationIntentId, parentOrganizationId: $('Fetch Intent Session').first().json.parentOrganizationId }) }}"
       },
       "id": "170e6d67-7840-435a-88c5-d8c5fab58d3d",
       "name": "Fetch Org Doc",
@@ -881,6 +881,7 @@
       ]
     }
   },
+  "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
