@@ -335,7 +335,8 @@
             "userInput": "={{ $json.text }}",
             "phoneNumber": "={{ $('Merge Credentials').item.json.messages[0].from }}",
             "display_phone_number": "={{ $('Merge Credentials').item.json.metadata.display_phone_number }}",
-            "messageSource": "={{ $json.messageSource }}"
+            "messageSource": "={{ $json.messageSource }}",
+            "userName": "={{ $('Extract Payload').first().json.contacts?.[0]?.profile?.name || 'User' }}"
           },
           "schema": [
             {
@@ -368,6 +369,15 @@
             {
               "id": "messageSource",
               "displayName": "messageSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "userName",
+              "displayName": "userName",
               "required": false,
               "defaultMatch": false,
               "display": true,

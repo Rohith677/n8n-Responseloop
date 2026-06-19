@@ -15,328 +15,6 @@
     },
     {
       "parameters": {
-        "collection": "users",
-        "options": {},
-        "query": "={{ JSON.stringify({ phoneNumber: $json.phoneNumber }) }}"
-      },
-      "id": "a5c1cf43-704a-4f59-be38-62f23597f4f4",
-      "name": "Search User",
-      "type": "n8n-nodes-base.mongoDb",
-      "typeVersion": 1.2,
-      "position": [
-        -1392,
-        320
-      ],
-      "alwaysOutputData": true,
-      "credentials": {
-        "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "dd037f2c-3078-48ea-8f4a-abd178cdbfb3",
-              "leftValue": "={{ $json.userId }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "exists",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "5df12fed-85ba-491c-9300-3757545d248e",
-      "name": "Is Registered?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -1168,
-        320
-      ]
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "WTI6a5eZiZGR7GMQ",
-          "mode": "id",
-          "cachedResultUrl": "/workflow/WTI6a5eZiZGR7GMQ"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
-            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
-            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}",
-            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}"
-          },
-          "schema": [
-            {
-              "id": "userInput",
-              "displayName": "userInput",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "phoneNumber",
-              "displayName": "phoneNumber",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "display_phone_number",
-              "displayName": "display_phone_number",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "messageSource",
-              "displayName": "messageSource",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "5352344d-ac5f-442b-b461-8a40e3e90a17",
-      "name": "Call User Creation",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        -944,
-        416
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 3
-          },
-          "conditions": [
-            {
-              "id": "bb96c967-d2f1-420c-bc3a-171c0c22c222",
-              "leftValue": "={{ $json.registrationComplete }}",
-              "rightValue": "",
-              "operator": {
-                "type": "boolean",
-                "operation": "true",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "29860380-b1db-459a-8576-f2855b7a721f",
-      "name": "Is Registration Complete?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.3,
-      "position": [
-        -720,
-        416
-      ]
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "1b90a99b-2390-4267-893a-14967a2cc7cb",
-              "name": "responseType",
-              "value": "={{ $json.responseType }}",
-              "type": "string"
-            },
-            {
-              "id": "272edb8e-784b-4d2c-a10d-a586c94541e9",
-              "name": "message",
-              "value": "={{ $json.message }}",
-              "type": "string"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "1bcb2f4b-39f9-46a3-89f8-18b4eb5e8852",
-      "name": "Return Registration Message",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [
-        -496,
-        512
-      ]
-    },
-    {
-      "parameters": {
-        "collection": "users",
-        "options": {},
-        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
-      },
-      "id": "40c10e91-0d53-42cd-b4df-cef07a4b4e81",
-      "name": "Search User Again",
-      "type": "n8n-nodes-base.mongoDb",
-      "typeVersion": 1.2,
-      "position": [
-        -496,
-        320
-      ],
-      "credentials": {
-        "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "workflowId": {
-          "__rl": true,
-          "value": "Rj0pUxHDOhwuC5tX",
-          "mode": "id",
-          "cachedResultUrl": "/workflow/Rj0pUxHDOhwuC5tX"
-        },
-        "workflowInputs": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "userInput": "={{ $('Call User Creation').first().json.firstMessage || $('Execute Workflow Trigger').first().json.userInput }}",
-            "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
-            "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
-            "userId": "={{ $('Search User Again').first().json.userId }}",
-            "organizationId": "={{ $('Search User Again').first().json.organizationId }}",
-            "parentOrganizationId": "={{ $('Search User Again').first().json.parentOrganizationId }}",
-            "userName": "={{ $('Search User Again').first().json.name }}",
-            "userMongoId": "={{ $('Search User Again').first().json._id }}",
-            "sessionId": ""
-          },
-          "schema": [
-            {
-              "id": "userInput",
-              "displayName": "userInput",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "phoneNumber",
-              "displayName": "phoneNumber",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "messageSource",
-              "displayName": "messageSource",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "userId",
-              "displayName": "userId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "organizationId",
-              "displayName": "organizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "parentOrganizationId",
-              "displayName": "parentOrganizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "userName",
-              "displayName": "userName",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "userMongoId",
-              "displayName": "userMongoId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "sessionId",
-              "displayName": "sessionId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "b5252d80-c94e-40ef-b37f-f193d2c7d1b8",
-      "name": "Call Intent After Reg",
-      "type": "n8n-nodes-base.executeWorkflow",
-      "typeVersion": 1.2,
-      "position": [
-        -272,
-        320
-      ]
-    },
-    {
-      "parameters": {
         "jsCode": "const userMessage = $('Execute Workflow Trigger').first().json.userInput || \"\";\nconst prompt = 'Is this message a GREETING (hi, hello, hey, start, menu, restart, etc)?\\nMessage: \"' + userMessage + '\"\\nRespond JSON only: {\"isGreeting\": true_or_false}';\nreturn [{ json: { prompt } }];"
       },
       "id": "4904cacf-4332-4604-b953-a10b3941e75a",
@@ -487,12 +165,10 @@
             "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
             "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
-            "userId": "={{ $('Search User').first().json.userId }}",
-            "organizationId": "={{ $('Search User').first().json.organizationId }}",
-            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
-            "userName": "={{ $('Search User').first().json.name }}",
-            "userMongoId": "={{ $('Search User').first().json._id }}",
-            "sessionId": ""
+            "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
+            "sessionId": "",
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
           },
           "schema": [
             {
@@ -532,24 +208,6 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "organizationId",
-              "displayName": "organizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "parentOrganizationId",
-              "displayName": "parentOrganizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
               "id": "userName",
               "displayName": "userName",
               "required": false,
@@ -559,8 +217,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "userMongoId",
-              "displayName": "userMongoId",
+              "id": "sessionId",
+              "displayName": "sessionId",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -568,8 +226,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "sessionId",
-              "displayName": "sessionId",
+              "id": "display_phone_number",
+              "displayName": "display_phone_number",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -802,12 +460,10 @@
             "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
             "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
-            "userId": "={{ $('Search User').first().json.userId }}",
-            "organizationId": "={{ $('Search User').first().json.organizationId }}",
-            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
-            "userName": "={{ $('Search User').first().json.name }}",
-            "userMongoId": "={{ $('Search User').first().json._id }}",
-            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}"
+            "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}",
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
           },
           "schema": [
             {
@@ -847,24 +503,6 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "organizationId",
-              "displayName": "organizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "parentOrganizationId",
-              "displayName": "parentOrganizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
               "id": "userName",
               "displayName": "userName",
               "required": false,
@@ -874,8 +512,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "userMongoId",
-              "displayName": "userMongoId",
+              "id": "sessionId",
+              "displayName": "sessionId",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -883,8 +521,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "sessionId",
-              "displayName": "sessionId",
+              "id": "display_phone_number",
+              "displayName": "display_phone_number",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -918,12 +556,10 @@
             "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
             "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
-            "userId": "={{ $('Search User').first().json.userId }}",
-            "organizationId": "={{ $('Search User').first().json.organizationId }}",
-            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
-            "userName": "={{ $('Search User').first().json.name }}",
-            "userMongoId": "={{ $('Search User').first().json._id }}",
-            "sessionId": ""
+            "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
+            "sessionId": "",
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
           },
           "schema": [
             {
@@ -963,24 +599,6 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "organizationId",
-              "displayName": "organizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "parentOrganizationId",
-              "displayName": "parentOrganizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
               "id": "userName",
               "displayName": "userName",
               "required": false,
@@ -990,8 +608,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "userMongoId",
-              "displayName": "userMongoId",
+              "id": "sessionId",
+              "displayName": "sessionId",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -999,8 +617,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "sessionId",
-              "displayName": "sessionId",
+              "id": "display_phone_number",
+              "displayName": "display_phone_number",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -1068,12 +686,10 @@
             "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
             "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
-            "userId": "={{ $('Search User').first().json.userId }}",
-            "organizationId": "={{ $('Search User').first().json.organizationId }}",
-            "parentOrganizationId": "={{ $('Search User').first().json.parentOrganizationId }}",
-            "userName": "={{ $('Search User').first().json.name }}",
-            "userMongoId": "={{ $('Search User').first().json._id }}",
-            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}"
+            "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}",
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
           },
           "schema": [
             {
@@ -1113,24 +729,6 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "organizationId",
-              "displayName": "organizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
-              "id": "parentOrganizationId",
-              "displayName": "parentOrganizationId",
-              "required": false,
-              "defaultMatch": false,
-              "display": true,
-              "type": "string",
-              "canBeUsedToMatch": true
-            },
-            {
               "id": "userName",
               "displayName": "userName",
               "required": false,
@@ -1140,8 +738,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "userMongoId",
-              "displayName": "userMongoId",
+              "id": "sessionId",
+              "displayName": "sessionId",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -1149,8 +747,8 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "sessionId",
-              "displayName": "sessionId",
+              "id": "display_phone_number",
+              "displayName": "display_phone_number",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -1189,76 +787,7 @@
       "main": [
         [
           {
-            "node": "Search User",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Search User": {
-      "main": [
-        [
-          {
-            "node": "Is Registered?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Is Registered?": {
-      "main": [
-        [
-          {
             "node": "Build Greeting Check",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Call User Creation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Call User Creation": {
-      "main": [
-        [
-          {
-            "node": "Is Registration Complete?",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Is Registration Complete?": {
-      "main": [
-        [
-          {
-            "node": "Search User Again",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Return Registration Message",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Search User Again": {
-      "main": [
-        [
-          {
-            "node": "Call Intent After Reg",
             "type": "main",
             "index": 0
           }
