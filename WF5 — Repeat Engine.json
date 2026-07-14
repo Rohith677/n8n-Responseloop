@@ -59,7 +59,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const session = $('Fetch Intent Session').first().json;\nconst orgDoc = $('Fetch Org Doc').first().json;\nconst trigger = $('Execute Workflow Trigger').first().json;\nconst messageSource = trigger.messageSource;\nconst userInput = trigger.userInput;\nconsole.log(\"session\", session)\nconst intent = (orgDoc.intents || []).find(i => i.name === session.intentName);\nif (!intent) throw new Error('Intent not found: ' + session.intentName);\n\nconst repeatConfig = intent.repeatSections?.[session.sectionName];\nif (!repeatConfig) throw new Error('Repeat section not found: ' + session.sectionName);\n\nconst subParams = repeatConfig.parameters || [];\nlet completedItems, currentItem, genQuestions;\ntry { completedItems = typeof session.completedItems === 'string' ? JSON.parse(session.completedItems) : (session.completedItems || []); } catch(e) { completedItems = []; }\ntry { currentItem = typeof session.currentItem === 'string' ? JSON.parse(session.currentItem) : (session.currentItem || {}); } catch(e) { currentItem = {}; }\ntry { genQuestions = session.generatedQuestions ? (typeof session.generatedQuestions === 'string' ? JSON.parse(session.generatedQuestions) : session.generatedQuestions) : null; } catch(e) { genQuestions = null; }\n\nconst fieldIndex = session.currentFieldIndex || 0;\nconst cycle = session.currentCycle || 1;\n\n// ENTERING REPEAT — first time (from WF4)\nif (messageSource === 'entering_repeat') {\n  return [{ json: {\n    action: genQuestions ? 'ask_next_field' : 'generate_questions',\n    nextField: subParams[0],\n    nextFieldIndex: 0,\n    updatedSession: { ...session, currentFieldIndex: 0, currentItem: '{}', currentCycle: 1 },\n    subParams, repeatConfig, genQuestions, completedItems, currentItem: {}\n  }}];\n}\n\n// REPEAT YES — add another\nif (messageSource === 'repeat_yes') {\n  completedItems.push(currentItem);\n  return [{ json: {\n    action: 'ask_next_field',\n    nextField: subParams[0],\n    nextFieldIndex: 0,\n    updatedSession: { ...session, currentCycle: cycle + 1, currentFieldIndex: 0, currentItem: '{}', completedItems: JSON.stringify(completedItems) },\n    subParams, repeatConfig, genQuestions, completedItems, currentItem: {}\n  }}];\n}\n\n// REPEAT NO — done collecting\nif (messageSource === 'repeat_no') {\n  completedItems.push(currentItem);\n  // Merge pre-repeat fields with repeat array\n  let preFields = {};\n  try { preFields = typeof session.collectedFields === 'string' ? JSON.parse(session.collectedFields) : (session.collectedFields || {}); } catch(e) {}\n  preFields[session.sectionName] = completedItems;\n  return [{ json: {\n    action: 'repeat_complete',\n    mergedCollectedFields: JSON.stringify(preFields),\n    itemCount: completedItems.length,\n    updatedSession: { ...session, phase: 'collecting', collectedFields: JSON.stringify(preFields), completedItems: JSON.stringify(completedItems), currentItem: '{}' }\n  }}];\n}\n\n// SAFETY: if fieldIndex past all sub-fields, re-send continue\nif (fieldIndex >= subParams.length) {\n  return [{ json: {\n    action: 'send_continue',\n    updatedSession: { ...session, currentItem: JSON.stringify(currentItem), currentFieldIndex: fieldIndex },\n    repeatConfig, genQuestions, completedItems, currentItem\n  }}];\n}\n\n// USER ANSWERED A FIELD\nconst currentField = subParams[fieldIndex];\ncurrentItem[currentField.name] = userInput;\nconst nextIndex = fieldIndex + 1;\n\nif (nextIndex >= subParams.length) {\n  // All sub-fields done for this cycle\n  return [{ json: {\n    action: 'send_continue',\n    updatedSession: { ...session, currentItem: JSON.stringify(currentItem), currentFieldIndex: nextIndex },\n    repeatConfig, genQuestions, completedItems, currentItem\n  }}];\n}\n\n// More sub-fields\nreturn [{ json: {\n  action: 'ask_next_field',\n  nextField: subParams[nextIndex],\n  nextFieldIndex: nextIndex,\n  updatedSession: { ...session, currentFieldIndex: nextIndex, currentItem: JSON.stringify(currentItem) },\n  subParams, repeatConfig, genQuestions, completedItems, currentItem\n}}];"
+        "jsCode": "const session = $('Fetch Intent Session').first().json;\nconst orgDoc = $('Fetch Org Doc').first().json;\nconst trigger = $('Execute Workflow Trigger').first().json;\nconst messageSource = trigger.messageSource;\nconst userInput = trigger.userInput;\nconsole.log(\"session\", session)\nconst intent = (orgDoc.intents || []).find(i => i.name === session.intentName);\nif (!intent) throw new Error('Intent not found: ' + session.intentName);\n\nconst repeatConfig = intent.repeatSections?.[session.sectionName];\nif (!repeatConfig) throw new Error('Repeat section not found: ' + session.sectionName);\n\nconst subParams = repeatConfig.parameters || [];\nlet completedItems, currentItem, genQuestions;\ntry { completedItems = typeof session.completedItems === 'string' ? JSON.parse(session.completedItems) : (session.completedItems || []); } catch(e) { completedItems = []; }\ntry { currentItem = typeof session.currentItem === 'string' ? JSON.parse(session.currentItem) : (session.currentItem || {}); } catch(e) { currentItem = {}; }\ntry { genQuestions = session.generatedQuestions ? (typeof session.generatedQuestions === 'string' ? JSON.parse(session.generatedQuestions) : session.generatedQuestions) : null; } catch(e) { genQuestions = null; }\n\nconst fieldIndex = session.currentFieldIndex || 0;\nconst cycle = session.currentCycle || 1;\n\n// ENTERING REPEAT \u2014 first time (from WF4)\nif (messageSource === 'entering_repeat') {\n  return [{ json: {\n    action: genQuestions ? 'ask_next_field' : 'generate_questions',\n    nextField: subParams[0],\n    nextFieldIndex: 0,\n    updatedSession: { ...session, currentFieldIndex: 0, currentItem: '{}', currentCycle: 1 },\n    subParams, repeatConfig, genQuestions, completedItems, currentItem: {}\n  }}];\n}\n\n// REPEAT YES \u2014 add another\nif (messageSource === 'repeat_yes') {\n  completedItems.push(currentItem);\n  return [{ json: {\n    action: 'ask_next_field',\n    nextField: subParams[0],\n    nextFieldIndex: 0,\n    updatedSession: { ...session, currentCycle: cycle + 1, currentFieldIndex: 0, currentItem: '{}', completedItems: JSON.stringify(completedItems) },\n    subParams, repeatConfig, genQuestions, completedItems, currentItem: {}\n  }}];\n}\n\n// REPEAT NO \u2014 done collecting\nif (messageSource === 'repeat_no') {\n  completedItems.push(currentItem);\n  // Merge pre-repeat fields with repeat array\n  let preFields = {};\n  try { preFields = typeof session.collectedFields === 'string' ? JSON.parse(session.collectedFields) : (session.collectedFields || {}); } catch(e) {}\n  preFields[session.sectionName] = completedItems;\n  return [{ json: {\n    action: 'repeat_complete',\n    mergedCollectedFields: JSON.stringify(preFields),\n    itemCount: completedItems.length,\n    updatedSession: { ...session, phase: 'collecting', collectedFields: JSON.stringify(preFields), completedItems: JSON.stringify(completedItems), currentItem: '{}' }\n  }}];\n}\n\n// SAFETY: if fieldIndex past all sub-fields, re-send continue\nif (fieldIndex >= subParams.length) {\n  return [{ json: {\n    action: 'send_continue',\n    updatedSession: { ...session, currentItem: JSON.stringify(currentItem), currentFieldIndex: fieldIndex },\n    repeatConfig, genQuestions, completedItems, currentItem\n  }}];\n}\n\n// USER ANSWERED A FIELD\nconst currentField = subParams[fieldIndex];\ncurrentItem[currentField.name] = userInput;\nconst nextIndex = fieldIndex + 1;\n\nif (nextIndex >= subParams.length) {\n  // All sub-fields done for this cycle\n  return [{ json: {\n    action: 'send_continue',\n    updatedSession: { ...session, currentItem: JSON.stringify(currentItem), currentFieldIndex: nextIndex },\n    repeatConfig, genQuestions, completedItems, currentItem\n  }}];\n}\n\n// More sub-fields\nreturn [{ json: {\n  action: 'ask_next_field',\n  nextField: subParams[nextIndex],\n  nextFieldIndex: nextIndex,\n  updatedSession: { ...session, currentFieldIndex: nextIndex, currentItem: JSON.stringify(currentItem) },\n  subParams, repeatConfig, genQuestions, completedItems, currentItem\n}}];"
       },
       "id": "e8e427c2-9127-4f3d-8cc2-4c68318d0a91",
       "name": "Repeat Logic",
@@ -224,68 +224,6 @@
       "position": [
         672,
         -240
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const data = $('Repeat Logic').first().json;\nconst subParams = data.subParams || [];\nconst fields = subParams.map(p => 'Field: \"' + p.name + '\" | Description: \"' + (p.description || p.name) + '\"').join('\\n');\nreturn [{ json: { prompt: 'Generate a short, friendly WhatsApp question for each field below. One natural sentence per field. Do NOT start with \"Ask\".\\n\\n' + fields + '\\n\\nReturn JSON only: {\"fieldName\": \"question\", ...}' } }];"
-      },
-      "id": "bb64d94e-8ee7-4f3f-bf78-210105863f22",
-      "name": "Build Gen Prompt",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        896,
-        -368
-      ]
-    },
-    {
-      "parameters": {
-        "resource": "chat",
-        "model": "gpt-4o-mini",
-        "prompt": {
-          "messages": [
-            {
-              "role": "system",
-              "content": "Generate friendly questions. JSON only. No markdown."
-            },
-            {
-              "content": "={{ $json.prompt }}"
-            }
-          ]
-        },
-        "simplifyOutput": false,
-        "options": {
-          "temperature": 0.3
-        },
-        "requestOptions": {}
-      },
-      "id": "86bf3727-179d-4558-8bec-060cf2439126",
-      "name": "Generate Questions LLM",
-      "type": "n8n-nodes-base.openAi",
-      "typeVersion": 1,
-      "position": [
-        1120,
-        -368
-      ],
-      "credentials": {
-        "openAiApi": {
-          "id": "uXr0nmkLxemPDRRi",
-          "name": "aami-dev"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "const raw = $input.first().json?.choices?.[0]?.message?.content || '{}';\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet questions;\ntry { questions = JSON.parse(cleaned); } catch(e) { questions = {}; }\nconst data = $('Repeat Logic').first().json;\nconst session = data.updatedSession;\nsession.generatedQuestions = JSON.stringify(questions);\nreturn [{ json: { ...data, genQuestions: questions, updatedSession: session } }];"
-      },
-      "id": "78c297ef-2212-4177-98d8-2904af321af1",
-      "name": "Parse Questions",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1344,
-        -368
       ]
     },
     {
@@ -563,6 +501,19 @@
         4256,
         -288
       ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Repeat Logic').first().json;\nconst subParams = data.subParams || [];\n// Use the exact configured description verbatim as the question \u2014\n// no LLM rephrasing, so what the org types is exactly what the user sees.\nconst questions = Object.fromEntries(subParams.map(p => [p.name, p.description || p.name]));\nconst session = data.updatedSession;\nsession.generatedQuestions = JSON.stringify(questions);\nreturn [{ json: { ...data, genQuestions: questions, updatedSession: session } }];"
+      },
+      "id": "d4e5f6a7-b8c9-4d0e-8f1a-2b3c4d5e6f7a",
+      "name": "Build Verbatim Questions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -368
+      ]
     }
   ],
   "connections": {
@@ -676,44 +627,11 @@
       "main": [
         [
           {
-            "node": "Build Gen Prompt",
+            "node": "Build Verbatim Questions",
             "type": "main",
             "index": 0
           }
         ],
-        [
-          {
-            "node": "Delete Old Session",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Gen Prompt": {
-      "main": [
-        [
-          {
-            "node": "Generate Questions LLM",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generate Questions LLM": {
-      "main": [
-        [
-          {
-            "node": "Parse Questions",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Parse Questions": {
-      "main": [
         [
           {
             "node": "Delete Old Session",
@@ -874,6 +792,17 @@
         [
           {
             "node": "Return Repeat API Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Verbatim Questions": {
+      "main": [
+        [
+          {
+            "node": "Delete Old Session",
             "type": "main",
             "index": 0
           }

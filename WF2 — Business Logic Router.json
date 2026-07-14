@@ -4,26 +4,26 @@
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "590b1a12-73b9-4615-8f2b-f41ed20c5683",
+      "id": "49d6bc0f-fa02-4ad0-bd11-1d201825b8b2",
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1616,
-        320
+        -1904,
+        -80
       ]
     },
     {
       "parameters": {
         "jsCode": "const userMessage = $('Execute Workflow Trigger').first().json.userInput || \"\";\nconst prompt = 'Is this message a GREETING (hi, hello, hey, start, menu, restart, etc)?\\nMessage: \"' + userMessage + '\"\\nRespond JSON only: {\"isGreeting\": true_or_false}';\nreturn [{ json: { prompt } }];"
       },
-      "id": "4904cacf-4332-4604-b953-a10b3941e75a",
+      "id": "60894108-7d2a-4956-a9e0-8dce17e0be14",
       "name": "Build Greeting Check",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -944,
-        128
+        -1632,
+        -80
       ]
     },
     {
@@ -47,13 +47,13 @@
         },
         "requestOptions": {}
       },
-      "id": "59cc76a7-6be6-4a24-95e9-e17bff13169a",
+      "id": "967deada-eec1-4749-b788-1ccb7757f217",
       "name": "Greeting Check LLM",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1,
       "position": [
-        -720,
-        128
+        -1408,
+        -80
       ],
       "credentials": {
         "openAiApi": {
@@ -66,13 +66,13 @@
       "parameters": {
         "jsCode": "const raw = $input.first().json?.choices?.[0]?.message?.content || '{}';\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\ntry { return [{ json: JSON.parse(cleaned) }]; } catch(e) { return [{ json: { isGreeting: false } }]; }"
       },
-      "id": "68d84038-a921-43a4-93f7-37b9baeb077c",
+      "id": "59516ab9-11ec-4a1b-81b8-9e24e801041a",
       "name": "Parse Greeting Check",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -496,
-        128
+        -1184,
+        -80
       ]
     },
     {
@@ -100,13 +100,13 @@
         },
         "options": {}
       },
-      "id": "cf904742-d83b-4590-9fef-82a987e6133e",
+      "id": "bae3050c-34ac-4d81-b630-fb4ac793df0d",
       "name": "Is Greeting?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -272,
-        128
+        -960,
+        -80
       ]
     },
     {
@@ -115,13 +115,13 @@
         "collection": "intent_sessions",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "f5b6e34b-eca1-40cf-9329-0ba4b2664c90",
+      "id": "9a7db40d-7c34-4129-8662-a8e32c76469c",
       "name": "Delete Sessions on Greeting",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -48,
-        -80
+        -736,
+        -288
       ],
       "credentials": {
         "mongoDb": {
@@ -136,13 +136,13 @@
         "collection": "options_cache",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "40f6332a-4417-44b3-811d-5cdd6dc24b38",
+      "id": "639716a8-f236-41a3-8af8-7a44e6dbb072",
       "name": "Delete Cache on Greeting",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        176,
-        -80
+        -512,
+        -288
       ],
       "credentials": {
         "mongoDb": {
@@ -238,13 +238,13 @@
         },
         "options": {}
       },
-      "id": "d959d782-3738-41c7-a667-edb30ab18b76",
+      "id": "7fa214a6-c956-4815-b1d8-4419038161bf",
       "name": "Call Intent Fresh",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        400,
-        -80
+        -288,
+        -288
       ]
     },
     {
@@ -253,13 +253,13 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "e89cc07a-892a-40d3-bfa3-14732afb9cca",
+      "id": "fe3797f6-9c81-45c2-904c-20a8a1f1e81e",
       "name": "Fetch Intent Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -48,
-        240
+        -736,
+        32
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -294,13 +294,13 @@
         },
         "options": {}
       },
-      "id": "7792d81c-4203-4ff0-94d6-5023072f9c77",
+      "id": "9c8fa9a7-559e-4de8-8318-2d3cdc6ade26",
       "name": "Has Active Session?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        176,
-        240
+        -512,
+        32
       ]
     },
     {
@@ -361,13 +361,13 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "4de81e2b-b7fc-4b24-a406-d4e08427e7d7",
+      "id": "87a0aee5-94be-4006-a7ce-4a8e064a8c23",
       "name": "Check Phase",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        400,
-        112
+        -288,
+        -96
       ]
     },
     {
@@ -384,9 +384,10 @@
             "userInput": "={{ $('Execute Workflow Trigger').first().json.userInput }}",
             "phoneNumber": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
-            "userId": "={{ $('Search User').first().json.userId }}",
-            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}"
+            "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id.toString() }}"
           },
+          "matchingColumns": [],
           "schema": [
             {
               "id": "userInput",
@@ -433,17 +434,19 @@
               "type": "string",
               "canBeUsedToMatch": true
             }
-          ]
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
         },
         "options": {}
       },
-      "id": "4920c32b-590d-46d4-8a5c-f1849a8e21ba",
+      "id": "28e6110d-b9d8-4477-b544-629b5b16a5f7",
       "name": "Call Repeat Engine",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        624,
-        32
+        -64,
+        -176
       ]
     },
     {
@@ -462,7 +465,7 @@
             "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
             "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
-            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id.toString() }}",
             "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
           },
           "schema": [
@@ -533,13 +536,13 @@
         },
         "options": {}
       },
-      "id": "b174691d-2391-4b62-8cfc-ef2268f1662f",
+      "id": "7db546b8-cff1-4f22-8d6e-30e9cd370e03",
       "name": "Call Intent With Session",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        624,
-        224
+        -64,
+        16
       ]
     },
     {
@@ -629,13 +632,13 @@
         },
         "options": {}
       },
-      "id": "85c3a450-b0df-48df-89f0-f35414428b1e",
+      "id": "9600285b-8a5e-49cf-b652-9e885d80a468",
       "name": "Call Intent Normal",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        400,
-        336
+        -288,
+        128
       ]
     },
     {
@@ -666,10 +669,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        848,
-        32
+        160,
+        -176
       ],
-      "id": "a818367f-5b88-4e2d-8057-0014f442534d",
+      "id": "a0f07eaa-26c0-4d7e-a224-4ed14ecd1bd1",
       "name": "Is Repeat Done?"
     },
     {
@@ -688,7 +691,7 @@
             "messageSource": "={{ $('Execute Workflow Trigger').first().json.messageSource }}",
             "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
-            "sessionId": "={{ $('Fetch Intent Session').first().json._id }}",
+            "sessionId": "={{ $('Fetch Intent Session').first().json._id.toString() }}",
             "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
           },
           "schema": [
@@ -759,13 +762,13 @@
         },
         "options": {}
       },
-      "id": "4290005c-e4c1-442b-9ba5-ad9c876760da",
+      "id": "aa7f85d8-97f3-4735-a37d-080d4aa870ce",
       "name": "Call Intent Post Repeat",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        1072,
-        -64
+        384,
+        -272
       ]
     },
     {
@@ -775,10 +778,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1072,
-        128
+        384,
+        -80
       ],
-      "id": "52d8511a-d222-4f90-bcb7-999724af20fc",
+      "id": "93d8431f-7b33-47da-aa60-215ecba8cef3",
       "name": "Return Repeat Response"
     }
   ],
@@ -944,7 +947,19 @@
       ]
     }
   },
-  "pinData": {},
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "text": "Monica",
+        "isPagination": false,
+        "messageSource": "text",
+        "userInput": "Monica",
+        "phoneNumber": "919645584806",
+        "display_phone_number": "918590886343",
+        "userName": "Rohith Sreekumar\ud83d\ude07"
+      }
+    ]
+  },
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
