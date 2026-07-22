@@ -653,12 +653,11 @@
           "conditions": [
             {
               "id": "d816462d-e8f2-4e09-9596-9a103d3376b3",
-              "leftValue": "={{ $json.responseType }}",
-              "rightValue": "__repeat_done__",
+              "leftValue": "={{ $json.responseType === '__repeat_done__' || $json.responseType === 'repeat_complete' || $json.repeatComplete === true ? 'yes' : 'no' }}",
+              "rightValue": "yes",
               "operator": {
                 "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
+                "operation": "equals"
               }
             }
           ],

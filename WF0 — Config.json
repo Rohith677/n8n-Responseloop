@@ -1,0 +1,47 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "c5eac4e4-30f3-445c-ad23-54dd6e36d1fd",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Single source of truth for environment-specific config used across\n// workflows (WF3, WF4, ...). To switch environments (dev/staging/prod),\n// edit BACKEND_BASE_URL here only \u2014 every workflow that calls this one\n// picks it up automatically, no need to hunt through node parameters.\nreturn [{\n  json: {\n    BACKEND_BASE_URL: \"https://api-dev.dynamicdataform.com\"\n  }\n}];"
+      },
+      "id": "245183f7-2092-4f13-aa79-0e79eb7dc3fb",
+      "name": "Return Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Return Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
+  }
+}

@@ -642,7 +642,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const agent = $json;\nconst payload = $('Extract Payload').first().json;\npayload.agentCredentials = agent.authData || {};\nreturn [{ json: payload }];"
+        "jsCode": "const agent = $('Find Agent Credentials').first().json;\nconst payload = $('Extract Payload').first().json;\npayload.agentCredentials = agent.authData || {};\nreturn [{ json: payload }];"
       },
       "id": "b4d2ac7a-908d-4219-9890-254a533680c9",
       "name": "Merge Credentials",
@@ -722,6 +722,27 @@
         -3888,
         1056
       ]
+    },
+    {
+      "parameters": {
+        "collection": "agents",
+        "options": {},
+        "query": "={{ JSON.stringify({ $expr: { $eq: [ { $toString: \"$integrationId\" }, $json._id ] }, isActive: true }) }}"
+      },
+      "id": "f3a1c2d4-6b8e-4a2f-9c1d-7e5b0a3f6c9d",
+      "name": "Find Active Agent",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -4464,
+        840
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "aX4C7RRQTBjcpgNp",
+          "name": "ddf-dev"
+        }
+      }
     }
   ],
   "connections": {
@@ -932,7 +953,7 @@
       "main": [
         [
           {
-            "node": "Merge Credentials",
+            "node": "Find Active Agent",
             "type": "main",
             "index": 0
           }
@@ -955,6 +976,17 @@
         [
           {
             "node": "Call Template Status Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Active Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge Credentials",
             "type": "main",
             "index": 0
           }
