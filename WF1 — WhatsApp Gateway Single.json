@@ -25,13 +25,13 @@
         },
         "options": {}
       },
-      "id": "a39c504e-0e9d-4dfb-ad74-520919697873",
+      "id": "4d2863ba-35d9-4694-a76f-1cd486627e9d",
       "name": "Has Messages",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -4176,
-        800
+        -8256,
+        928
       ]
     },
     {
@@ -133,6 +133,30 @@
               },
               "renameOutput": true,
               "outputKey": "document"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "media-video",
+                    "leftValue": "={{ $('Merge Credentials').item.json.messages[0].type }}",
+                    "rightValue": "video",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "video"
             }
           ]
         },
@@ -140,13 +164,13 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "6a4f60d7-bece-4752-ae2c-2171908e9e44",
+      "id": "f4a3462a-ce0d-4a22-8911-7ef22f67d373",
       "name": "Message Router",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -3728,
-        768
+        -7808,
+        896
       ]
     },
     {
@@ -175,26 +199,26 @@
         },
         "options": {}
       },
-      "id": "efd53077-98d8-4b8f-967b-a038fd20ae55",
+      "id": "9527a750-e98a-4876-8b20-20f783d24d79",
       "name": "Text Field",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -3504,
-        592
+        -7584,
+        720
       ]
     },
     {
       "parameters": {
         "jsCode": "const interactive = $('Merge Credentials').item.json.messages[0].interactive;\nlet text = '';\nlet isPagination = false;\nlet pageInfo = null;\nlet messageSource = 'button';\n\nif (interactive.button_reply) {\n  const btnId = interactive.button_reply.id;\n  if (btnId === '__repeat_yes__') {\n    text = '__repeat_yes__';\n    messageSource = 'repeat_yes';\n  } else if (btnId === '__repeat_no__') {\n    text = '__repeat_no__';\n    messageSource = 'repeat_no';\n  } else {\n    text = interactive.button_reply.title;\n    messageSource = 'button';\n  }\n} else if (interactive.list_reply) {\n  const listId = interactive.list_reply.id || '';\n  if (listId.startsWith('__page__')) {\n    isPagination = true;\n    const parts = listId.split('__').filter(p => p !== '');\n    pageInfo = { intent: parts[1] || '', fieldName: parts[2] || '', page: parseInt(parts[3] || '1', 10) };\n    messageSource = 'pagination';\n  } else {\n    text = listId;\n    messageSource = 'list_reply';\n  }\n}\n\nreturn [{ json: { text, isPagination, pageInfo, messageSource } }];"
       },
-      "id": "1f6025b3-bcb4-418d-8fc6-9ce06e2389cf",
+      "id": "4e1347b2-f5a8-4c12-bfee-7a4fd419819e",
       "name": "Interactive message extract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -3504,
-        784
+        -7584,
+        912
       ]
     },
     {
@@ -215,13 +239,13 @@
         "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{ $('Merge Credentials').item.json.messages[0].from }}\",\n  \"type\": \"text\",\n  \"text\": { \"body\": \"Unknown Response\" }\n}",
         "options": {}
       },
-      "id": "cda9f8c4-7e45-489e-a81e-e5ef874ef7a0",
+      "id": "0d7827e7-f27c-43d7-b580-3d6ef932a929",
       "name": "Unknown Type Response",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -3504,
-        1152
+        -7584,
+        1280
       ],
       "webhookId": "e4814d63-6faa-4268-8009-b6d5728e066f"
     },
@@ -250,13 +274,13 @@
         },
         "options": {}
       },
-      "id": "6133590a-202e-4d4c-a4c6-185295334200",
+      "id": "2a9a8a4e-6c4e-4ce1-b19e-2322e1d1c30d",
       "name": "Is Pagination?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -3280,
-        704
+        -7360,
+        832
       ]
     },
     {
@@ -265,13 +289,13 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('Merge Credentials').item.json.messages[0].from, intentName: $json.pageInfo.intent, fieldName: $json.pageInfo.fieldName }) }}"
       },
-      "id": "0bd13e8c-a481-4d1f-91f7-c4e577acd651",
+      "id": "4b87988c-4711-4765-ba47-f937da740389",
       "name": "Check Options Cache",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -3056,
-        512
+        -7136,
+        640
       ],
       "alwaysOutputData": true,
       "credentials": {
@@ -285,13 +309,13 @@
       "parameters": {
         "jsCode": "const cache = $input.first().json;\nconst pageInfo = $('Interactive message extract').first().json.pageInfo;\nconst phoneNumber = $('Merge Credentials').item.json.messages[0].from;\n\nif (!cache || !cache.options) {\n  return [{ json: { responseType: 'text', message: 'Options have expired. Please start your request again.' } }];\n}\n\nlet allOptions = [];\ntry { allOptions = typeof cache.options === 'string' ? JSON.parse(cache.options) : cache.options; } catch(e) { allOptions = []; }\n\nconst page = pageInfo.page || 1;\nconst intentName = pageInfo.intent;\nconst fieldName = pageInfo.fieldName;\n\nfunction paginateSections(sections, page, intentName, fieldName) {\n  const PAGE_SIZE = 8;\n  const flatRows = [];\n  for (const sec of sections) {\n    for (const row of sec.rows) {\n      flatRows.push({\n        sectionTitle: sec.title,\n        rowId: row.id,\n        rowTitle: row.title\n      });\n    }\n  }\n  const totalPages = Math.ceil(flatRows.length / PAGE_SIZE);\n  const startIdx = (page - 1) * PAGE_SIZE;\n  const endIdx = Math.min(startIdx + PAGE_SIZE, flatRows.length);\n  const pageRows = flatRows.slice(startIdx, endIdx);\n  const paginatedSections = [];\n  const sectionMap = {};\n  for (const item of pageRows) {\n    if (!sectionMap[item.sectionTitle]) {\n      sectionMap[item.sectionTitle] = { title: item.sectionTitle, rows: [] };\n      paginatedSections.push(sectionMap[item.sectionTitle]);\n    }\n    sectionMap[item.sectionTitle].rows.push({ id: item.rowId, title: item.rowTitle });\n  }\n  const navigationRows = [];\n  if (page > 1) {\n    navigationRows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page - 1), title: '◀ Previous dates' });\n  }\n  if (page < totalPages) {\n    navigationRows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page + 1), title: 'More dates & times' });\n  }\n  if (navigationRows.length > 0) {\n    paginatedSections.push({ title: 'Other dates', rows: navigationRows });\n  }\n  return paginatedSections;\n}\n\nif (allOptions.length > 0 && allOptions[0].rows) {\n  const paginated = paginateSections(allOptions, page, intentName, fieldName);\n  return [{ json: {\n    responseType: 'interactive', message: 'Please select an option:',\n    interactivePayload: { messaging_product: 'whatsapp', to: phoneNumber, type: 'interactive',\n      interactive: { type: 'list', body: { text: 'Please select an option:' },\n        action: { button: 'View options', sections: paginated } } }\n  } }];\n}\n\nconst totalPages = Math.ceil(allOptions.length / 10);\nlet rows = [];\nlet startIdx, endIdx;\nif (page === 1) { startIdx = 0; endIdx = Math.min(9, allOptions.length); }\nelse { startIdx = (page - 1) * 10 - 1; endIdx = Math.min(startIdx + 8, allOptions.length); }\n\nfor (let i = startIdx; i < endIdx; i++) {\n  rows.push({ id: allOptions[i].id, title: (allOptions[i].title || '').substring(0, 24) });\n}\n\nif (page > 1) rows.unshift({ id: '__page__' + intentName + '__' + fieldName + '__' + (page - 1), title: '◀ Previous' });\nif (page < totalPages) rows.push({ id: '__page__' + intentName + '__' + fieldName + '__' + (page + 1), title: '▶ More options' });\n\nreturn [{ json: {\n  responseType: 'interactive', message: 'Please select an option:',\n  interactivePayload: { messaging_product: 'whatsapp', to: phoneNumber, type: 'interactive',\n    interactive: { type: 'list', body: { text: 'Please select an option:' },\n      action: { button: 'View options', sections: [{ title: 'Options', rows }] } } }\n} }];"
       },
-      "id": "d747bb17-c527-446e-b7b1-4c4f30124965",
+      "id": "06c1b730-fa94-45dc-9165-b92112b88491",
       "name": "Build Pagination List",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -2832,
-        512
+        -6912,
+        640
       ]
     },
     {
@@ -312,13 +336,13 @@
         "jsonBody": "={{ JSON.stringify($json.interactivePayload) }}",
         "options": {}
       },
-      "id": "4bae4d71-646f-4b21-a4f2-6578b099991b",
+      "id": "6ca2dbd9-641c-452d-a81c-1eec8a09aa5b",
       "name": "Send Pagination Response",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -2608,
-        512
+        -6688,
+        640
       ]
     },
     {
@@ -336,7 +360,8 @@
             "phoneNumber": "={{ $('Merge Credentials').item.json.messages[0].from }}",
             "display_phone_number": "={{ $('Merge Credentials').item.json.metadata.display_phone_number }}",
             "messageSource": "={{ $json.messageSource }}",
-            "userName": "={{ $('Extract Payload').first().json.contacts?.[0]?.profile?.name || 'User' }}"
+            "userName": "={{ $('Extract Payload').first().json.contacts?.[0]?.profile?.name || 'User' }}",
+            "mediaType": "={{ $json.mediaType }}"
           },
           "schema": [
             {
@@ -383,18 +408,27 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "mediaType",
+              "displayName": "mediaType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ]
         },
         "options": {}
       },
-      "id": "29e9a231-93c7-44de-89f0-bbe534e8d4c8",
+      "id": "b4ce11fa-620b-49b6-b691-1e34c34d171f",
       "name": "Call Business Logic",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -3056,
-        816
+        -7136,
+        944
       ]
     },
     {
@@ -455,13 +489,13 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "0319b084-0927-4814-85fe-479e931b018e",
+      "id": "9b2b2b61-d208-4c79-84d1-62e305340163",
       "name": "Route Response",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -2832,
-        800
+        -6912,
+        928
       ]
     },
     {
@@ -482,13 +516,13 @@
         "jsonBody": "={{ JSON.stringify($json.interactivePayload) }}",
         "options": {}
       },
-      "id": "a6231d8c-1004-41ab-b46d-fa23270543dc",
+      "id": "f29fb022-0fb2-418c-bdc0-b43c42a025c0",
       "name": "Send Interactive Message",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -2608,
-        720
+        -6688,
+        848
       ]
     },
     {
@@ -509,13 +543,13 @@
         "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", to: $('Merge Credentials').item.json.messages[0].from, type: \"text\", text: { body: $json.message } }) }}",
         "options": {}
       },
-      "id": "1333ffe6-2535-487a-961d-92f577d16899",
+      "id": "1123d0b5-5024-4967-84d6-b04b53acfde3",
       "name": "Send Text Reply",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -2608,
-        912
+        -6688,
+        1040
       ],
       "webhookId": "b02ee0d8-9b7b-4dce-9e36-4b7ba131d2c1"
     },
@@ -537,26 +571,26 @@
         "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"status\": \"read\",\n  \"message_id\": \"{{ $json.messages[0].id }}\",\n  \"typing_indicator\": { \"type\": \"text\" }\n}",
         "options": {}
       },
-      "id": "b557f971-4afd-492b-957f-4952921251ad",
+      "id": "75b3772c-a72d-4be0-985a-9fb329bdc014",
       "name": "Typing Indicator",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -3936,
-        784
+        -8016,
+        912
       ]
     },
     {
       "parameters": {
-        "jsCode": "const msg = $('Merge Credentials').item.json.messages[0];\nlet text = '';\nif (msg.type === 'image') text = msg.image.id;\nelse if (msg.type === 'document') text = msg.document.id;\nelse text = 'unknown_media';\n\nreturn [{ json: { text, isPagination: false, pageInfo: null, messageSource: 'media' } }];"
+        "jsCode": "const msg = $('Merge Credentials').item.json.messages[0];\nlet text = '';\nlet mediaType = msg.type;\nif (msg.type === 'image') text = msg.image.id;\nelse if (msg.type === 'document') text = msg.document.id;\nelse if (msg.type === 'video') text = msg.video.id;\nelse { text = 'unknown_media'; mediaType = 'unknown'; }\n\nreturn [{ json: { text, isPagination: false, pageInfo: null, messageSource: 'media', mediaType } }];"
       },
-      "id": "45a759fa-322c-4e2a-926c-256c8e1710fc",
+      "id": "cc4422eb-db41-4d73-bcc2-eedc4c0d063c",
       "name": "Media Field Extract",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -3504,
-        992
+        -7584,
+        1120
       ]
     },
     {
@@ -565,13 +599,13 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "1f622c31-2985-4959-a465-c0c7acdb341a",
+      "id": "642a2965-682e-47cb-8015-908c10d7be45",
       "name": "Webhook GET Challenge",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        -4944,
-        528
+        -9440,
+        480
       ],
       "webhookId": "4c0cafbe-7683-4af1-803d-711ee576deee"
     },
@@ -581,13 +615,13 @@
         "responseBody": "={{ $json.query['hub.challenge'] }}",
         "options": {}
       },
-      "id": "0f7c60f2-49f6-4458-a40f-fc36e9b74ddd",
+      "id": "5b332dee-cbf3-4be4-aeab-2becf40af61f",
       "name": "Respond to Challenge",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        -4704,
-        528
+        -9200,
+        480
       ]
     },
     {
@@ -596,13 +630,13 @@
         "path": "whatsapp-inbound",
         "options": {}
       },
-      "id": "4c586841-275f-4c8b-a294-180482834c87",
+      "id": "67717a16-b7a1-4a08-a689-55c28299abe2",
       "name": "Webhook POST",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        -4944,
-        800
+        -9440,
+        928
       ],
       "webhookId": "e70e821c-a081-4146-9921-1b56ab34901d"
     },
@@ -610,13 +644,13 @@
       "parameters": {
         "jsCode": "const body = $json.body;\nif (!body || !body.entry || !body.entry[0].changes || !body.entry[0].changes[0].value) return [];\nreturn [{ json: body.entry[0].changes[0].value }];"
       },
-      "id": "59346ad0-e134-495e-871e-754fc94f9a27",
+      "id": "f199eb20-a7bc-4465-8550-9ef66f65b6f5",
       "name": "Extract Payload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -4752,
-        800
+        -9248,
+        928
       ]
     },
     {
@@ -625,13 +659,13 @@
         "options": {},
         "query": "={{ JSON.stringify({ identifier: $json.metadata.phone_number_id, isActive: true }) }}"
       },
-      "id": "a9a571d5-9784-4b3f-9b1f-b51282fc9726",
+      "id": "d5dcd0f8-a212-45de-8dea-b4c1cd982108",
       "name": "Find Agent Credentials",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -4560,
-        800
+        -8816,
+        928
       ],
       "credentials": {
         "mongoDb": {
@@ -644,13 +678,13 @@
       "parameters": {
         "jsCode": "const agent = $('Find Agent Credentials').first().json;\nconst payload = $('Extract Payload').first().json;\npayload.agentCredentials = agent.authData || {};\nreturn [{ json: payload }];"
       },
-      "id": "b4d2ac7a-908d-4219-9890-254a533680c9",
+      "id": "981f9642-4980-49c3-920f-8ea2c32b7725",
       "name": "Merge Credentials",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -4352,
-        800
+        -8432,
+        928
       ]
     },
     {
@@ -660,7 +694,7 @@
             "caseSensitive": true,
             "leftValue": "",
             "typeValidation": "strict",
-            "version": 2
+            "version": 3
           },
           "conditions": [
             {
@@ -678,13 +712,13 @@
         },
         "options": {}
       },
-      "id": "653f30bb-77bc-4aca-afb1-7212a3b1487d",
+      "id": "ef1ad582-4694-4f29-89a8-039edd382147",
       "name": "Is Template Status Update?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -4176,
-        1072
+        -9040,
+        928
       ]
     },
     {
@@ -714,13 +748,13 @@
         },
         "options": {}
       },
-      "id": "efa4b3f6-4408-4b1d-8105-e99ba92d2901",
+      "id": "62e2bcc0-cb97-4574-9267-7b1389112091",
       "name": "Call Template Status Workflow",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -3888,
-        1056
+        -8816,
+        672
       ]
     },
     {
@@ -729,13 +763,13 @@
         "options": {},
         "query": "={{ JSON.stringify({ $expr: { $eq: [ { $toString: \"$integrationId\" }, $json._id ] }, isActive: true }) }}"
       },
-      "id": "f3a1c2d4-6b8e-4a2f-9c1d-7e5b0a3f6c9d",
+      "id": "e3e2c698-6521-4415-ac61-160c499ea5df",
       "name": "Find Active Agent",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -4464,
-        840
+        -8608,
+        928
       ],
       "credentials": {
         "mongoDb": {
@@ -754,13 +788,6 @@
             "type": "main",
             "index": 0
           }
-        ],
-        [
-          {
-            "node": "Is Template Status Update?",
-            "type": "main",
-            "index": 0
-          }
         ]
       ]
     },
@@ -776,6 +803,13 @@
         [
           {
             "node": "Interactive message extract",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Media Field Extract",
             "type": "main",
             "index": 0
           }
@@ -942,7 +976,7 @@
       "main": [
         [
           {
-            "node": "Find Agent Credentials",
+            "node": "Is Template Status Update?",
             "type": "main",
             "index": 0
           }
@@ -976,6 +1010,13 @@
         [
           {
             "node": "Call Template Status Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Find Agent Credentials",
             "type": "main",
             "index": 0
           }

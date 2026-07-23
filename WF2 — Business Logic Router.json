@@ -94,6 +94,16 @@
                 "operation": "true",
                 "singleValue": true
               }
+            },
+            {
+              "id": "no-active-session-guard",
+              "leftValue": "={{ $('Fetch Intent Session (Early)').first().json.phase }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "isEmpty",
+                "singleValue": true
+              }
             }
           ],
           "combinator": "and"
@@ -168,7 +178,8 @@
             "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
             "sessionId": "",
-            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}",
+            "mediaType": "={{ $('Execute Workflow Trigger').first().json.mediaType }}"
           },
           "schema": [
             {
@@ -228,6 +239,15 @@
             {
               "id": "display_phone_number",
               "displayName": "display_phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mediaType",
+              "displayName": "mediaType",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -466,7 +486,8 @@
             "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
             "sessionId": "={{ $('Fetch Intent Session').first().json._id.toString() }}",
-            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}",
+            "mediaType": "={{ $('Execute Workflow Trigger').first().json.mediaType }}"
           },
           "schema": [
             {
@@ -526,6 +547,15 @@
             {
               "id": "display_phone_number",
               "displayName": "display_phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mediaType",
+              "displayName": "mediaType",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -562,7 +592,8 @@
             "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
             "sessionId": "",
-            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}",
+            "mediaType": "={{ $('Execute Workflow Trigger').first().json.mediaType }}"
           },
           "schema": [
             {
@@ -622,6 +653,15 @@
             {
               "id": "display_phone_number",
               "displayName": "display_phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mediaType",
+              "displayName": "mediaType",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -691,7 +731,8 @@
             "userId": "={{ $('Execute Workflow Trigger').first().json.phoneNumber }}",
             "userName": "={{ $('Execute Workflow Trigger').first().json.userName }}",
             "sessionId": "={{ $('Fetch Intent Session').first().json._id.toString() }}",
-            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}"
+            "display_phone_number": "={{ $('Execute Workflow Trigger').first().json.display_phone_number }}",
+            "mediaType": "={{ $('Execute Workflow Trigger').first().json.mediaType }}"
           },
           "schema": [
             {
@@ -756,6 +797,15 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "mediaType",
+              "displayName": "mediaType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ]
         },
@@ -782,6 +832,28 @@
       ],
       "id": "93d8431f-7b33-47da-aa60-215ecba8cef3",
       "name": "Return Repeat Response"
+    },
+    {
+      "parameters": {
+        "collection": "intent_sessions",
+        "options": {},
+        "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
+      },
+      "id": "01a2b3c4-7777-4211-c3cc-early0fetch1",
+      "name": "Fetch Intent Session (Early)",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.2,
+      "position": [
+        -1200,
+        200
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "idvQwFIuw5BIOf5c",
+          "name": "ddf-chat-bot"
+        }
+      }
     }
   ],
   "connections": {
@@ -822,7 +894,7 @@
       "main": [
         [
           {
-            "node": "Is Greeting?",
+            "node": "Fetch Intent Session (Early)",
             "type": "main",
             "index": 0
           }
@@ -944,6 +1016,17 @@
           }
         ]
       ]
+    },
+    "Fetch Intent Session (Early)": {
+      "main": [
+        [
+          {
+            "node": "Is Greeting?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "pinData": {
@@ -955,7 +1038,7 @@
         "userInput": "Monica",
         "phoneNumber": "919645584806",
         "display_phone_number": "918590886343",
-        "userName": "Rohith Sreekumar\ud83d\ude07"
+        "userName": "Rohith Sreekumar😇"
       }
     ]
   },

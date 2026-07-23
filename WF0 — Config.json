@@ -4,7 +4,7 @@
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "c5eac4e4-30f3-445c-ad23-54dd6e36d1fd",
+      "id": "80e4730e-fbba-4783-a877-0c59fe9543e3",
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
@@ -15,9 +15,9 @@
     },
     {
       "parameters": {
-        "jsCode": "// Single source of truth for environment-specific config used across\n// workflows (WF3, WF4, ...). To switch environments (dev/staging/prod),\n// edit BACKEND_BASE_URL here only \u2014 every workflow that calls this one\n// picks it up automatically, no need to hunt through node parameters.\nreturn [{\n  json: {\n    BACKEND_BASE_URL: \"https://api-dev.dynamicdataform.com\"\n  }\n}];"
+        "jsCode": "// Single source of truth for environment-specific config used across\n// workflows. To switch environments (dev/staging/prod),\n// edit BACKEND_BASE_URL here only — every workflow that calls this one\n// picks it up automatically, no need to hunt through node parameters.\nreturn [{\n  json: {\n    // BACKEND_BASE_URL: \"https://polychasial-semimythic-veta.ngrok-free.dev\"\n    BACKEND_BASE_URL: \"https://api-dev.dynamicdataform.com\"\n  }\n}];"
       },
-      "id": "245183f7-2092-4f13-aa79-0e79eb7dc3fb",
+      "id": "6cb8e01d-0642-4eec-a596-e7495a4e993c",
       "name": "Return Config",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
