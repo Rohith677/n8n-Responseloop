@@ -4,32 +4,31 @@
       "parameters": {
         "inputSource": "passthrough"
       },
-      "id": "49d6bc0f-fa02-4ad0-bd11-1d201825b8b2",
+      "id": "3a6bd05b-1036-4225-b7f7-5701c8571d40",
       "name": "Execute Workflow Trigger",
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.1,
       "position": [
-        -1904,
-        -80
+        -2416,
+        -944
       ]
     },
     {
       "parameters": {
         "jsCode": "const userMessage = $('Execute Workflow Trigger').first().json.userInput || \"\";\nconst prompt = 'Is this message a GREETING (hi, hello, hey, start, menu, restart, etc)?\\nMessage: \"' + userMessage + '\"\\nRespond JSON only: {\"isGreeting\": true_or_false}';\nreturn [{ json: { prompt } }];"
       },
-      "id": "60894108-7d2a-4956-a9e0-8dce17e0be14",
+      "id": "1624eb70-0f99-4739-96be-378e82572106",
       "name": "Build Greeting Check",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1632,
-        -80
+        -2144,
+        -944
       ]
     },
     {
       "parameters": {
         "resource": "chat",
-        "model": "gpt-4o-mini",
         "prompt": {
           "messages": [
             {
@@ -47,13 +46,13 @@
         },
         "requestOptions": {}
       },
-      "id": "967deada-eec1-4749-b788-1ccb7757f217",
+      "id": "d568c133-933d-458d-aace-45b4fb4343e2",
       "name": "Greeting Check LLM",
       "type": "n8n-nodes-base.openAi",
       "typeVersion": 1,
       "position": [
-        -1408,
-        -80
+        -1920,
+        -944
       ],
       "credentials": {
         "openAiApi": {
@@ -66,13 +65,13 @@
       "parameters": {
         "jsCode": "const raw = $input.first().json?.choices?.[0]?.message?.content || '{}';\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\ntry { return [{ json: JSON.parse(cleaned) }]; } catch(e) { return [{ json: { isGreeting: false } }]; }"
       },
-      "id": "59516ab9-11ec-4a1b-81b8-9e24e801041a",
+      "id": "842f3dc7-7a66-4144-b570-adc01e7ec7f4",
       "name": "Parse Greeting Check",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1184,
-        -80
+        -1696,
+        -944
       ]
     },
     {
@@ -110,13 +109,13 @@
         },
         "options": {}
       },
-      "id": "bae3050c-34ac-4d81-b630-fb4ac793df0d",
+      "id": "f09e7e4a-423c-429a-a98c-335cce0d42cf",
       "name": "Is Greeting?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -960,
-        -80
+        -1296,
+        -944
       ]
     },
     {
@@ -125,18 +124,18 @@
         "collection": "intent_sessions",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "9a7db40d-7c34-4129-8662-a8e32c76469c",
+      "id": "7ae866fd-d7ee-40c8-a24c-1ecef79afa8e",
       "name": "Delete Sessions on Greeting",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -736,
-        -288
+        -1056,
+        -1136
       ],
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "QinkzqpoUrJYXZ4u",
+          "name": "chat-bot-prod"
         }
       }
     },
@@ -146,18 +145,18 @@
         "collection": "options_cache",
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "639716a8-f236-41a3-8af8-7a44e6dbb072",
+      "id": "8e5ca457-157f-44ac-9a6b-dbcab1c06fde",
       "name": "Delete Cache on Greeting",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -512,
-        -288
+        -832,
+        -1136
       ],
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "QinkzqpoUrJYXZ4u",
+          "name": "chat-bot-prod"
         }
       }
     },
@@ -258,13 +257,13 @@
         },
         "options": {}
       },
-      "id": "7fa214a6-c956-4815-b1d8-4419038161bf",
+      "id": "06670a2e-03e9-4b19-aab4-0f31aee476f1",
       "name": "Call Intent Fresh",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -288,
-        -288
+        -608,
+        -1136
       ]
     },
     {
@@ -273,19 +272,19 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "fe3797f6-9c81-45c2-904c-20a8a1f1e81e",
+      "id": "6512dfa8-e743-4b05-aea9-4062c15ce392",
       "name": "Fetch Intent Session",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -736,
-        32
+        -1056,
+        -816
       ],
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "QinkzqpoUrJYXZ4u",
+          "name": "chat-bot-prod"
         }
       }
     },
@@ -314,13 +313,13 @@
         },
         "options": {}
       },
-      "id": "9c8fa9a7-559e-4de8-8318-2d3cdc6ade26",
+      "id": "bebda99e-1fef-4e32-96c0-1fd4ef0e7152",
       "name": "Has Active Session?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -512,
-        32
+        -832,
+        -816
       ]
     },
     {
@@ -381,13 +380,13 @@
           "fallbackOutput": "extra"
         }
       },
-      "id": "87a0aee5-94be-4006-a7ce-4a8e064a8c23",
+      "id": "41483060-a9cd-493a-8534-a2219c228c51",
       "name": "Check Phase",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.3,
       "position": [
-        -288,
-        -96
+        -608,
+        -944
       ]
     },
     {
@@ -460,13 +459,13 @@
         },
         "options": {}
       },
-      "id": "28e6110d-b9d8-4477-b544-629b5b16a5f7",
+      "id": "c31d4b6d-d102-41c6-9dbc-c96e3f01e6e2",
       "name": "Call Repeat Engine",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -64,
-        -176
+        -384,
+        -1024
       ]
     },
     {
@@ -566,13 +565,13 @@
         },
         "options": {}
       },
-      "id": "7db546b8-cff1-4f22-8d6e-30e9cd370e03",
+      "id": "0276025e-ae39-4b9a-aea7-f422714614e9",
       "name": "Call Intent With Session",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -64,
-        16
+        -384,
+        -832
       ]
     },
     {
@@ -672,13 +671,13 @@
         },
         "options": {}
       },
-      "id": "9600285b-8a5e-49cf-b652-9e885d80a468",
+      "id": "c12ec2c9-d0b0-4b0e-9d45-ef2cb39af130",
       "name": "Call Intent Normal",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        -288,
-        128
+        -608,
+        -720
       ]
     },
     {
@@ -708,10 +707,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        160,
-        -176
+        -160,
+        -1024
       ],
-      "id": "a0f07eaa-26c0-4d7e-a224-4ed14ecd1bd1",
+      "id": "4daabfb0-5b7c-4f14-85c6-ac4c03ebef25",
       "name": "Is Repeat Done?"
     },
     {
@@ -811,13 +810,13 @@
         },
         "options": {}
       },
-      "id": "aa7f85d8-97f3-4735-a37d-080d4aa870ce",
+      "id": "bc067664-1737-4323-8b00-392c1a546829",
       "name": "Call Intent Post Repeat",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.2,
       "position": [
-        384,
-        -272
+        64,
+        -1120
       ]
     },
     {
@@ -827,10 +826,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        384,
-        -80
+        64,
+        -928
       ],
-      "id": "93d8431f-7b33-47da-aa60-215ecba8cef3",
+      "id": "aea26b54-c3f9-4037-bf64-18183ca11e2e",
       "name": "Return Repeat Response"
     },
     {
@@ -839,19 +838,19 @@
         "options": {},
         "query": "={{ JSON.stringify({ phoneNumber: $('Execute Workflow Trigger').first().json.phoneNumber }) }}"
       },
-      "id": "01a2b3c4-7777-4211-c3cc-early0fetch1",
+      "id": "4923e262-4290-4751-99d0-c6e27a37f4d9",
       "name": "Fetch Intent Session (Early)",
       "type": "n8n-nodes-base.mongoDb",
       "typeVersion": 1.2,
       "position": [
-        -1200,
-        200
+        -1504,
+        -944
       ],
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "QinkzqpoUrJYXZ4u",
+          "name": "chat-bot-prod"
         }
       }
     }

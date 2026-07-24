@@ -300,8 +300,8 @@
       "alwaysOutputData": true,
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "QinkzqpoUrJYXZ4u",
+          "name": "chat-bot-prod"
         }
       }
     },
@@ -595,37 +595,6 @@
     },
     {
       "parameters": {
-        "path": "whatsapp-inbound",
-        "responseMode": "responseNode",
-        "options": {}
-      },
-      "id": "642a2965-682e-47cb-8015-908c10d7be45",
-      "name": "Webhook GET Challenge",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1,
-      "position": [
-        -9440,
-        480
-      ],
-      "webhookId": "4c0cafbe-7683-4af1-803d-711ee576deee"
-    },
-    {
-      "parameters": {
-        "respondWith": "text",
-        "responseBody": "={{ $json.query['hub.challenge'] }}",
-        "options": {}
-      },
-      "id": "5b332dee-cbf3-4be4-aeab-2becf40af61f",
-      "name": "Respond to Challenge",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1,
-      "position": [
-        -9200,
-        480
-      ]
-    },
-    {
-      "parameters": {
         "httpMethod": "POST",
         "path": "whatsapp-inbound",
         "options": {}
@@ -669,8 +638,8 @@
       ],
       "credentials": {
         "mongoDb": {
-          "id": "aX4C7RRQTBjcpgNp",
-          "name": "ddf-dev"
+          "id": "TZCglPW8Q99ExFzu",
+          "name": "DDF-PROD"
         }
       }
     },
@@ -773,10 +742,41 @@
       ],
       "credentials": {
         "mongoDb": {
-          "id": "aX4C7RRQTBjcpgNp",
-          "name": "ddf-dev"
+          "id": "TZCglPW8Q99ExFzu",
+          "name": "DDF-PROD"
         }
       }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.query['hub.challenge'] }}",
+        "options": {}
+      },
+      "id": "5b332dee-cbf3-4be4-aeab-2becf40af61f",
+      "name": "Respond to Challenge",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -9200,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "path": "whatsapp-inbound",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "642a2965-682e-47cb-8015-908c10d7be45",
+      "name": "Webhook GET Challenge",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -9440,
+        480
+      ],
+      "webhookId": "4c0cafbe-7683-4af1-803d-711ee576deee"
     }
   ],
   "connections": {
@@ -950,17 +950,6 @@
         ]
       ]
     },
-    "Webhook GET Challenge": {
-      "main": [
-        [
-          {
-            "node": "Respond to Challenge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Webhook POST": {
       "main": [
         [
@@ -1028,6 +1017,17 @@
         [
           {
             "node": "Merge Credentials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook GET Challenge": {
+      "main": [
+        [
+          {
+            "node": "Respond to Challenge",
             "type": "main",
             "index": 0
           }

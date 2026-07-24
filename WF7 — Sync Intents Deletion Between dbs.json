@@ -97,7 +97,7 @@
     {
       "parameters": {
         "operation": "delete",
-        "collection": "organizations",
+        "collection": "organization_intents",
         "query": "={{ JSON.stringify({ _id: $json.organizationIntentId }) }}"
       },
       "id": "0f416a1f-f783-45a8-91aa-b0ebf932c85d",
@@ -110,8 +110,8 @@
       ],
       "credentials": {
         "mongoDb": {
-          "id": "idvQwFIuw5BIOf5c",
-          "name": "ddf-chat-bot"
+          "id": "QinkzqpoUrJYXZ4u",
+          "name": "ddf-chat-bot-prod"
         }
       }
     },

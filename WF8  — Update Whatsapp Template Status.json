@@ -1,0 +1,473 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "78fd8a89-1757-4cc1-80cd-47b0daf5b4ff",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        5088
+      ]
+    },
+    {
+      "parameters": {
+        "content": "Update Template Status",
+        "height": 992,
+        "width": 3280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -256,
+        4608
+      ],
+      "typeVersion": 1,
+      "id": "5d6a6580-c9c7-4e27-bccf-275098251d67",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = $input.first().json;\nconst now = new Date().toISOString();\n\nreturn [{\n  json: {\n    organizationId: null,\n    phoneNumberId: null,\n    wabaId: parsed.wabaId || null,\n    userId: null,\n    action: 'TEMPLATE_STATUS_UPDATE',\n    status: 'ERROR',\n    request: {\n      method: 'WEBHOOK',\n      url: null,\n      body: {\n        waTemplateId: parsed.waTemplateId,\n        templateName: parsed.templateName,\n        templateLanguage: parsed.templateLanguage,\n        finalStatus: parsed.finalStatus,\n        reason: parsed.reason\n      }\n    },\n    response: {\n      httpStatus: 200,\n      data: null\n    },\n    error: {\n      message: 'No document found in emailTemplates matching this waTemplateId',\n      metaCode: null,\n      metaType: null\n    },\n    triggeredBy: 'WEBHOOK',\n    createdAt: now,\n    updatedAt: now\n  }\n}];"
+      },
+      "id": "7b160a24-2b4e-4f17-ac4e-dd6ae1b6e08c",
+      "name": "Build log entry (not found)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        5072
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = $('Parse Meta event').item.json;\nconst errItem = $input.first().json;\n\nlet errMsg = 'Unknown error updating template status in MongoDB';\nif (typeof errItem.error === 'string') {\n  errMsg = errItem.error;\n} else if (errItem.error && errItem.error.message) {\n  errMsg = errItem.error.message;\n} else if (errItem.message) {\n  errMsg = errItem.message;\n}\n\nconst now = new Date().toISOString();\n\nreturn [{\n  json: {\n    organizationId: null,\n    phoneNumberId: null,\n    wabaId: parsed.wabaId || null,\n    userId: null,\n    action: 'TEMPLATE_STATUS_UPDATE',\n    status: 'ERROR',\n    request: {\n      method: 'WEBHOOK',\n      url: null,\n      body: {\n        waTemplateId: parsed.waTemplateId,\n        templateName: parsed.templateName,\n        templateLanguage: parsed.templateLanguage,\n        finalStatus: parsed.finalStatus,\n        reason: parsed.reason\n      }\n    },\n    response: {\n      httpStatus: 500,\n      data: null\n    },\n    error: {\n      message: errMsg,\n      metaCode: null,\n      metaType: null\n    },\n    triggeredBy: 'WEBHOOK',\n    createdAt: now,\n    updatedAt: now\n  }\n}];"
+      },
+      "id": "15f26cb0-4de2-4e93-8965-64fc8df9c134",
+      "name": "Build log entry (failure)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2112,
+        4912
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "whatsappLogs",
+        "fields": "organizationId,phoneNumberId,wabaId,userId,action,status,request,response,error,triggeredBy,createdAt,updatedAt",
+        "options": {}
+      },
+      "id": "7ccdfbfd-1ecb-439d-a0bf-c42b38c5da19",
+      "name": "MongoDB - Insert Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.3,
+      "position": [
+        2624,
+        5232
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "TZCglPW8Q99ExFzu",
+          "name": "DDF-PROD"
+        }
+      },
+      "notes": "Inserts into whatsappLogs collection per WhatsappLog mongoose schema."
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "emailTemplates",
+        "updateKey": "waTemplate.waTemplateId",
+        "fields": "waTemplate.status,waTemplate.reason,waTemplate.category,Status.isActive,Status.isInert",
+        "options": {}
+      },
+      "id": "1a764be9-3947-44fa-a196-fabe09dea84d",
+      "name": "MongoDB – Update template status",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.3,
+      "position": [
+        1872,
+        4736
+      ],
+      "credentials": {
+        "mongoDb": {
+          "id": "TZCglPW8Q99ExFzu",
+          "name": "DDF-PROD"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Matches on waTemplateId, sets status + reason. onError continues so we can log failures instead of halting."
+    },
+    {
+      "parameters": {
+        "jsCode": "const parsed = $('Parse Meta event').item.json;\nconst payload = $('Build update payload').item.json;\nconst now = new Date().toISOString();\n\nreturn [{\n  json: {\n    organizationId: null,\n    phoneNumberId: null,\n    wabaId: parsed.wabaId || null,\n    userId: null,\n    action: 'TEMPLATE_STATUS_UPDATE',\n    status: 'SUCCESS',\n    request: {\n      method: 'WEBHOOK',\n      url: null,\n      params: {},\n      body: {\n        waTemplateId: parsed.waTemplateId,\n        templateName: parsed.templateName,\n        templateLanguage: parsed.templateLanguage,\n        finalStatus: parsed.finalStatus,\n        reason: parsed.reason\n      }\n    },\n    response: {\n      httpStatus: 200,\n      data: {\n        'waTemplate.waTemplateId': payload['waTemplate.waTemplateId'],\n        'waTemplate.status': payload['waTemplate.status'],\n        'waTemplate.reason': payload['waTemplate.reason'],\n        'Status.isActive': payload['Status.isActive']\n      }\n    },\n    error: null,\n    triggeredBy: 'WEBHOOK',\n    createdAt: now,\n    updatedAt: now\n  }\n}];"
+      },
+      "id": "442dd4cd-6817-48b4-adc9-a096a581f8a2",
+      "name": "Build log entry (success)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2112,
+        4720
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// const fetched = $input.first().json;\n// const parsed = $('Parse Meta event').item.json;\n\n// const rawStatus = fetched?.status || parsed.rawStatus || '';\n\n// let status = rawStatus;\n// if (rawStatus === 'APPROVED') status = 'APPROVED';\n// else if (rawStatus === 'REJECTED' || rawStatus === 'DISABLED') status = 'REJECTED';\n// else if (rawStatus === 'PENDING') status = 'IN_REVIEW';\n// else status = rawStatus;\n\n// return [{\n//   json: {\n//     'waTemplate.waTemplateId': parsed.waTemplateId,\n//     'waTemplate.status': status,\n//     'waTemplate.reason': fetched?.quality_score?.reasons?.[0] || parsed.reason || null,\n//     'Status.isActive': status === 'APPROVED'\n//   }\n// }];\n\nconst parsed = $('Parse Meta event').item.json;\n\nlet status = parsed.finalStatus;\nif (status === 'DISABLED') status = 'REJECTED';\n\nreturn [{\n  json: {\n    'waTemplate.waTemplateId': parsed.waTemplateId,\n    'waTemplate.status': status,\n    'waTemplate.reason': parsed.reason || null,\n    'waTemplate.category': parsed.category,\n    'Status.isActive': status === 'APPROVED',\n    'Status.isInert': status !== 'APPROVED'\n  }\n}];"
+      },
+      "id": "e98bc738-be07-4ae4-b61b-a9a9c2ec6e24",
+      "name": "Build update payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        4864
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json._found }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "id": "d3e4f5a6-b7c8-4901-2345-6789abcdef01"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "263140b3-d922-4fbb-9f53-2a736a7848cb",
+      "name": "Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        4976
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst parsed = $('Parse Meta event').item.json;\n\n// With 'Always Output Data' enabled on the Find node, a no-match still\n// produces exactly 1 item, but it's an empty placeholder ({}) rather than\n// a real document -- so check for real content, not just item count.\nconst found = items.length > 0\n  && items[0].json\n  && Object.keys(items[0].json).length > 0;\n\nreturn [{ json: { _found: found, ...parsed } }];"
+      },
+      "id": "6bfbb612-b815-429e-825a-8a1dc6959e4c",
+      "name": "Check template found",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        4960
+      ]
+    },
+    {
+      "parameters": {
+        "collection": "emailTemplates",
+        "options": {
+          "limit": 1
+        },
+        "query": "={ \"waTemplate.waTemplateId\": \"{{ $json.waTemplateId }}\" }"
+      },
+      "id": "1588f941-0d88-4659-a75d-7c0f30dd7635",
+      "name": "MongoDB - Find template",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        4960
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "TZCglPW8Q99ExFzu",
+          "name": "DDF-PROD"
+        }
+      },
+      "notes": "Checks whether a document with this waTemplateId actually exists before attempting to update it."
+    },
+    {
+      "parameters": {
+        "jsCode": "const skip = $input.first().json;\nconst now = new Date().toISOString();\n\nreturn [{\n  json: {\n    organizationId: null,\n    phoneNumberId: null,\n    wabaId: null,\n    userId: null,\n    action: 'TEMPLATE_STATUS_UPDATE',\n    status: 'SKIPPED',\n    request: {\n      method: 'WEBHOOK',\n      url: null,\n      body: skip\n    },\n    response: {\n      httpStatus: 200,\n      data: { reason: skip.reason }\n    },\n    error: null,\n    triggeredBy: 'WEBHOOK',\n    createdAt: now,\n    updatedAt: now\n  }\n}];"
+      },
+      "id": "58e07ef0-275d-4532-b199-85c5011d68a2",
+      "name": "Build log entry (skipped)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        5232
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json._skip }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "id": "f6a7b8c9-d0e1-2345-fabc-456789012345"
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "13fb898a-4da2-4811-983b-5672de55d788",
+      "name": "Is valid template event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        496,
+        5088
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// \n\nconst body = $input.first().json.body || $input.first().json;\n\n// Handle Meta webhook verification (GET challenge) — not needed here since\n// n8n webhook is POST only, but guard anyway\nif (!body.entry || !Array.isArray(body.entry)) {\n  return [{ json: { _skip: true, reason: 'Not a valid Meta webhook payload' } }];\n}\n\nconst changes = body.entry[0]?.changes || [];\nconst change  = changes.find(c => c.field === 'message_template_status_update');\n\nif (!change) {\n  return [{ json: { _skip: true, reason: 'No message_template_status_update field found' } }];\n}\n\nconst val = change.value;\n\nreturn [{\n  json: {\n    _skip:              false,\n    waTemplateId:       String(val.message_template_id),\n    templateName:       val.message_template_name,\n    templateLanguage:   val.message_template_language,\n    category:           val.message_template_category,\n    finalStatus:        val.event,           // APPROVED | REJECTED | DISABLED | FLAGGED\n    reason:             val.reason || 'NONE',\n    wabaId:             body.entry[0]?.id || null\n  }\n}];\n"
+      },
+      "id": "bd528c09-064e-43cf-b35c-017b9ba90387",
+      "name": "Parse Meta event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        256,
+        5088
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Meta event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build log entry (not found)": {
+      "main": [
+        [
+          {
+            "node": "MongoDB - Insert Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build log entry (failure)": {
+      "main": [
+        [
+          {
+            "node": "MongoDB - Insert Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB – Update template status": {
+      "main": [
+        [
+          {
+            "node": "Build log entry (success)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build log entry (failure)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build log entry (success)": {
+      "main": [
+        [
+          {
+            "node": "MongoDB - Insert Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build update payload": {
+      "main": [
+        [
+          {
+            "node": "MongoDB – Update template status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found?": {
+      "main": [
+        [
+          {
+            "node": "Build update payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build log entry (not found)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check template found": {
+      "main": [
+        [
+          {
+            "node": "Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB - Find template": {
+      "main": [
+        [
+          {
+            "node": "Check template found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build log entry (skipped)": {
+      "main": [
+        [
+          {
+            "node": "MongoDB - Insert Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is valid template event?": {
+      "main": [
+        [
+          {
+            "node": "MongoDB - Find template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build log entry (skipped)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Meta event": {
+      "main": [
+        [
+          {
+            "node": "Is valid template event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Execute Workflow Trigger": [
+      {
+        "headers": {
+          "host": "n8n.grapelime.in",
+          "x-real-ip": "2a03:2880:10ff:49::",
+          "x-forwarded-for": "2a03:2880:10ff:49::, 2a03:2880:10ff:49::",
+          "connection": "close",
+          "content-length": "352",
+          "accept-encoding": "gzip, br",
+          "user-agent": "Webhooks/1.1 (https://fb.me/webhooks)",
+          "x-hub-signature-256": "sha256=0e5bc6009ebc5d17e5d6d39948212da4261c51a8cf64f14c5c7714777d613b60",
+          "x-hub-signature": "sha1=68246dfed3b0095c8199d6ff4b9a1f83462b4b6a",
+          "cf-ray": "a1d224054d2ed83b-DFW",
+          "content-type": "application/json",
+          "accept": "*/*",
+          "cdn-loop": "cloudflare; loops=1",
+          "cf-connecting-ip": "2a03:2880:10ff:49::",
+          "cf-ipcountry": "US",
+          "cf-visitor": "{\"scheme\":\"https\"}",
+          "x-forwarded-proto": "https"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "object": "whatsapp_business_account",
+          "entry": [
+            {
+              "id": "2885572268447800",
+              "time": 1784384568,
+              "changes": [
+                {
+                  "field": "message_template_status_update",
+                  "value": {
+                    "event": "APPROVED",
+                    "message_template_id": 879652174768147,
+                    "message_template_name": "trismart_leave_rejection",
+                    "message_template_language": "en",
+                    "reason": "NONE",
+                    "message_template_category": "UTILITY"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "webhookUrl": "https://n8n.grapelime.in/webhook/whatsapp-inbound",
+        "executionMode": "production"
+      }
+    ]
+  },
+  "meta": {
+    "instanceId": "96f10b425b1561bd57e5c02b65a77db5d56e1653285455cd28a3571ec454bd10"
+  }
+}
